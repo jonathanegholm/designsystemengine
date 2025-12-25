@@ -38,6 +38,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
         :root {
+            /* Default Values (Zinc Flat) */
             --background: 0 0% 100%;
             --foreground: 240 10% 3.9%;
             --card: 0 0% 100%;
@@ -212,7 +213,7 @@
                             <div class="flex gap-2">
                                 <select id="saved-presets-select" class="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50">
                                     <option value="">-- Select Saved Scale --</option>
-                                    </select>
+                                </select>
                                 <button id="btn-delete-trigger" class="hidden inline-flex items-center justify-center rounded-md text-sm font-medium border border-input bg-transparent hover:bg-destructive hover:text-destructive-foreground hover:border-destructive h-9 w-9 transition-colors" title="Delete Preset">
                                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                                 </button>
@@ -376,11 +377,6 @@
                         <div class="flex justify-end">
                             <div class="bg-[var(--color-600)] text-white text-xs px-3 py-2 rounded-lg rounded-tr-none max-w-[80%] shadow-sm">
                                 Just exported them. Check the dashboard!
-                            </div>
-                        </div>
-                        <div class="flex justify-start">
-                            <div class="bg-muted text-foreground text-xs px-3 py-2 rounded-lg rounded-tl-none max-w-[80%]">
-                                Awesome, checking now.
                             </div>
                         </div>
                     </div>
@@ -551,12 +547,38 @@
             { name: 'Violet', h: 300, c: 0.14 }, { name: 'Pink', h: 340, c: 0.14 }
         ];
 
+        // Extended Surface Definitions with specific shades for "Raised" mode
         const SURFACES = [
-            { name: 'Zinc', light: { bg: '0 0% 100%', card: '0 0% 100%', border: '240 5.9% 90%' }, dark: { bg: '240 10% 3.9%', card: '240 10% 3.9%', border: '240 3.7% 15.9%' } },
-            { name: 'Slate', light: { bg: '0 0% 100%', card: '0 0% 100%', border: '214.3 31.8% 91.4%' }, dark: { bg: '222.2 84% 4.9%', card: '222.2 84% 4.9%', border: '217.2 32.6% 17.5%' } },
-            { name: 'Stone', light: { bg: '0 0% 100%', card: '0 0% 100%', border: '30 5% 88%' }, dark: { bg: '24 9.8% 10%', card: '24 9.8% 10%', border: '30 3.7% 20%' } },
-            { name: 'Gray', light: { bg: '0 0% 100%', card: '0 0% 100%', border: '220 13% 91%' }, dark: { bg: '224 71% 4%', card: '224 71% 4%', border: '215 27.9% 16.9%' } },
-            { name: 'Neutral', light: { bg: '0 0% 100%', card: '0 0% 100%', border: '0 0% 89.8%' }, dark: { bg: '0 0% 3.9%', card: '0 0% 3.9%', border: '0 0% 14.9%' } },
+            { 
+                name: 'Zinc', 
+                light: { bg: '0 0% 100%', card: '0 0% 100%' }, 
+                dark: { bg: '240 10% 3.9%', card: '240 10% 3.9%' },
+                raised: { lightBg: '240 4.8% 95.9%', darkBg: '240 10% 3.9%', darkCard: '240 5.9% 10%' }
+            },
+            { 
+                name: 'Slate', 
+                light: { bg: '0 0% 100%', card: '0 0% 100%' }, 
+                dark: { bg: '222.2 84% 4.9%', card: '222.2 84% 4.9%' },
+                raised: { lightBg: '210 40% 96.1%', darkBg: '222.2 84% 4.9%', darkCard: '215 25% 27%' }
+            },
+            { 
+                name: 'Stone', 
+                light: { bg: '0 0% 100%', card: '0 0% 100%' }, 
+                dark: { bg: '24 9.8% 10%', card: '24 9.8% 10%' },
+                raised: { lightBg: '60 9.1% 97.8%', darkBg: '24 9.8% 10%', darkCard: '24 5.4% 6.3%' }
+            },
+            { 
+                name: 'Gray', 
+                light: { bg: '0 0% 100%', card: '0 0% 100%' }, 
+                dark: { bg: '224 71% 4%', card: '224 71% 4%' },
+                raised: { lightBg: '220 14% 96%', darkBg: '224 71% 4%', darkCard: '215 19% 35%' }
+            },
+            { 
+                name: 'Neutral', 
+                light: { bg: '0 0% 100%', card: '0 0% 100%' }, 
+                dark: { bg: '0 0% 3.9%', card: '0 0% 3.9%' },
+                raised: { lightBg: '0 0% 96%', darkBg: '0 0% 3.9%', darkCard: '0 0% 9%' }
+            },
         ];
 
         const STORAGE_KEY = 'design-system-presets';
@@ -605,20 +627,17 @@
             toastIcon: document.getElementById('toast-icon'),
             fileImport: document.getElementById('file-import'),
             btnImport: document.getElementById('btn-import-json'),
-            // Save Dialog Refs
             saveDialog: document.getElementById('save-dialog'),
             btnSaveTrigger: document.getElementById('btn-save-modal-trigger'),
             btnCancelSave: document.getElementById('btn-cancel-save'),
             btnConfirmSave: document.getElementById('btn-confirm-save'),
             btnCloseSaveDialog: document.getElementById('btn-close-save-dialog'),
             saveNameInput: document.getElementById('save-name'),
-            // Delete Dialog Refs
             deleteDialog: document.getElementById('delete-dialog'),
             btnDeleteTrigger: document.getElementById('btn-delete-trigger'),
             btnCancelDelete: document.getElementById('btn-cancel-delete'),
             btnConfirmDelete: document.getElementById('btn-confirm-delete'),
             deleteTargetName: document.getElementById('delete-target-name'),
-            // Saved Presets Refs
             savedPresetsSelect: document.getElementById('saved-presets-select'),
             // Level
             btnLevelFlat: document.getElementById('btn-level-flat'),
@@ -667,7 +686,6 @@
             
             renderScale();
             renderChart();
-            updateSurface(); // Ensure raised background is updated with new color
             window.dispatchEvent(new CustomEvent('colorChange', { detail: { hue: state.hue, chroma: state.chroma } }));
         }
 
@@ -704,11 +722,10 @@
             lucide.createIcons();
         }
 
-        // --- CHART SVG GENERATOR ---
+        // --- CHART ---
         function renderChart() {
             const container = document.getElementById('chart-container');
             if(!container) return;
-            
             const data = [400, 300, 550, 480, 690, 800];
             const w = container.offsetWidth;
             const h = container.offsetHeight;
@@ -718,7 +735,6 @@
                 const y = h - ((d / max) * h);
                 return `${x},${y}`;
             });
-
             let d = `M ${pts[0]}`;
             for (let i = 0; i < pts.length - 1; i++) {
                 const [x0, y0] = pts[i].split(',').map(Number);
@@ -727,63 +743,37 @@
                 const cp2x = x1 - (x1 - x0) / 2;
                 d += ` C ${cp1x},${y0} ${cp2x},${y1} ${x1},${y1}`;
             }
-
             const dFill = `${d} L ${w},${h} L 0,${h} Z`;
-
-            const svg = `
-            <svg width="100%" height="100%" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" class="overflow-visible">
-                <defs>
-                    <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stop-color="var(--color-600)" stop-opacity="0.3"/>
-                        <stop offset="100%" stop-color="var(--color-600)" stop-opacity="0"/>
-                    </linearGradient>
-                </defs>
-                <path d="${dFill}" fill="url(#chartGradient)" />
-                <path d="${d}" fill="none" stroke="var(--color-600)" stroke-width="2" />
-                ${pts.map((p, i) => {
-                   const [cx, cy] = p.split(',');
-                   return `<circle cx="${cx}" cy="${cy}" r="4" fill="var(--color-background)" stroke="var(--color-600)" stroke-width="2" class="chart-dot" data-val="${data[i]}" />`
-                }).join('')}
-            </svg>
-            `;
+            const svg = `<svg width="100%" height="100%" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" class="overflow-visible"><defs><linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--color-600)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--color-600)" stop-opacity="0"/></linearGradient></defs><path d="${dFill}" fill="url(#chartGradient)" /><path d="${d}" fill="none" stroke="var(--color-600)" stroke-width="2" />${pts.map((p, i) => { const [cx, cy] = p.split(','); return `<circle cx="${cx}" cy="${cy}" r="4" fill="var(--color-background)" stroke="var(--color-600)" stroke-width="2" class="chart-dot" data-val="${data[i]}" />` }).join('')}</svg>`;
             container.innerHTML = svg + '<div id="chart-tooltip" class="chart-tooltip"></div>';
-
             const dots = container.querySelectorAll('.chart-dot');
             const tooltip = document.getElementById('chart-tooltip');
-            
             dots.forEach(dot => {
                 dot.addEventListener('mouseenter', (e) => {
-                    const val = e.target.getAttribute('data-val');
-                    tooltip.textContent = `$${val}`;
+                    tooltip.textContent = `$${e.target.getAttribute('data-val')}`;
                     tooltip.style.opacity = '1';
-                    const rect = e.target.getBoundingClientRect();
-                    const containerRect = container.getBoundingClientRect();
-                    tooltip.style.left = `${(rect.left - containerRect.left) - 10}px`;
-                    tooltip.style.top = `${(rect.top - containerRect.top) - 35}px`;
+                    const r = e.target.getBoundingClientRect();
+                    const c = container.getBoundingClientRect();
+                    tooltip.style.left = `${(r.left - c.left) - 10}px`;
+                    tooltip.style.top = `${(r.top - c.top) - 35}px`;
                 });
                 dot.addEventListener('mouseleave', () => { tooltip.style.opacity = '0'; });
             });
         }
-        
         window.addEventListener('resize', renderChart);
 
-        // --- LOCAL STORAGE & PRESETS LOGIC ---
+        // --- LOCAL STORAGE & PRESETS ---
         function initSavedPresets() {
             try {
                 const stored = localStorage.getItem(STORAGE_KEY);
-                if (stored) {
-                    userPresets = JSON.parse(stored);
-                }
-            } catch (e) { console.error('Error loading presets', e); }
+                if (stored) userPresets = JSON.parse(stored);
+            } catch (e) {}
             renderSavedPresetsDropdown();
         }
 
         function saveScale() {
             const name = dom.saveNameInput.value.trim();
-            if (!name) {
-                showToast('Please enter a preset name', true);
-                return;
-            }
+            if (!name) { showToast('Please enter a preset name', true); return; }
             userPresets[name] = { hue: state.hue, chroma: state.chroma };
             localStorage.setItem(STORAGE_KEY, JSON.stringify(userPresets));
             renderSavedPresetsDropdown();
@@ -811,74 +801,10 @@
                 opt.textContent = name;
                 dom.savedPresetsSelect.appendChild(opt);
             }
-            if (!dom.savedPresetsSelect.value) {
-                dom.btnDeleteTrigger.classList.add('hidden');
-            }
+            if (!dom.savedPresetsSelect.value) dom.btnDeleteTrigger.classList.add('hidden');
         }
 
-        // --- EVENT LISTENERS ---
-        dom.hue.addEventListener('input', (e) => { 
-            state.hue = parseFloat(e.target.value); state.baseColor = null; dom.hex.value = ''; updateUI(); 
-            dom.savedPresetsSelect.value = ""; dom.btnDeleteTrigger.classList.add('hidden');
-        });
-        dom.chroma.addEventListener('input', (e) => { 
-            state.chroma = parseFloat(e.target.value); state.baseColor = null; dom.hex.value = ''; updateUI(); 
-            dom.savedPresetsSelect.value = ""; dom.btnDeleteTrigger.classList.add('hidden');
-        });
-        dom.hex.addEventListener('input', handleHex);
-        dom.picker.addEventListener('input', (e) => { dom.hex.value = e.target.value; handleHex(e); });
-
-        function handleHex(e) {
-            const val = dom.hex.value;
-            if (/^#?([0-9A-F]{3}){1,2}$/i.test(val)) {
-                dom.preview.style.backgroundColor = val;
-                const { h, c, l } = hexToOklch(val);
-                state.hue = h; state.chroma = c;
-                state.baseColor = { hex: val, l: l };
-                dom.hue.value = h; dom.chroma.value = c;
-                if (l > 0.99 || l < 0.05) dom.warning.classList.remove('hidden'); else dom.warning.classList.add('hidden');
-                dom.savedPresetsSelect.value = ""; 
-                dom.btnDeleteTrigger.classList.add('hidden');
-                updateUI();
-            }
-        }
-
-        dom.savedPresetsSelect.addEventListener('change', (e) => {
-            const name = e.target.value;
-            if (name && userPresets[name]) {
-                const p = userPresets[name];
-                applyPreset(p.hue, p.chroma);
-                dom.btnDeleteTrigger.classList.remove('hidden');
-            } else {
-                dom.btnDeleteTrigger.classList.add('hidden');
-            }
-        });
-
-        dom.btnDeleteTrigger.addEventListener('click', () => {
-            const name = dom.savedPresetsSelect.value;
-            if(!name) return;
-            dom.deleteTargetName.textContent = name;
-            dom.deleteDialog.showModal();
-        });
-        dom.btnCancelDelete.addEventListener('click', () => dom.deleteDialog.close());
-        dom.btnConfirmDelete.addEventListener('click', confirmDeletePreset);
-
-        dom.btnSaveTrigger.addEventListener('click', () => { dom.saveNameInput.value = ''; dom.saveDialog.showModal(); });
-        dom.btnCancelSave.addEventListener('click', () => dom.saveDialog.close());
-        dom.btnCloseSaveDialog.addEventListener('click', () => dom.saveDialog.close());
-        dom.btnConfirmSave.addEventListener('click', saveScale);
-
-        dom.presets.innerHTML = PRESETS.map(p => `<button onclick="applyPreset(${p.h}, ${p.c})" class="flex items-center gap-2 px-2.5 py-1 rounded-md border text-xs hover:bg-accent transition-colors"><div class="w-2.5 h-2.5 rounded-full" style="background-color: oklch(0.6 ${p.c} ${p.h})"></div>${p.name}</button>`).join('');
-
-        function applyPreset(h, c) {
-            state.hue = h; state.chroma = c;
-            state.baseColor = null;
-            dom.hex.value = '';
-            dom.warning.classList.add('hidden');
-            updateUI();
-        }
-
-        // Surfaces & Levels
+        // --- SURFACES & LEVELS ---
         window.setSurfaceLevel = function(level) {
             state.surfaceLevel = level;
             updateSurface();
@@ -915,18 +841,74 @@
         function updateSurface() {
             const isDark = root.classList.contains('dark');
             const theme = isDark ? currentSurface.dark : currentSurface.light;
-            root.style.setProperty('--card', theme.card);
-            root.style.setProperty('--border', theme.border);
-            root.style.setProperty('--input', theme.border);
+            
+            // Default "Flat" values
+            let bg = theme.bg;
+            let card = theme.card;
 
-            if (state.surfaceLevel === 'flat') {
-                root.style.setProperty('--background', theme.bg);
-            } else {
-                const bgToken = isDark ? 'var(--color-1100)' : 'var(--color-50)';
-                root.style.setProperty('--background', bgToken);
+            // "Raised" Overrides
+            if (state.surfaceLevel === 'raised') {
+                if (isDark) {
+                    bg = currentSurface.raised.darkBg; // 1100 level
+                    card = currentSurface.raised.darkCard; // 900 level
+                } else {
+                    bg = currentSurface.raised.lightBg; // 100 level
+                    card = '0 0% 100%'; // Pure White
+                }
             }
+
+            root.style.setProperty('--background', bg);
+            root.style.setProperty('--card', card);
+            
             renderSurfaces();
             renderSurfaceLevels();
+        }
+
+        // --- EVENT LISTENERS ---
+        dom.hue.addEventListener('input', (e) => { state.hue = parseFloat(e.target.value); state.baseColor = null; dom.hex.value = ''; updateUI(); dom.savedPresetsSelect.value = ""; dom.btnDeleteTrigger.classList.add('hidden'); });
+        dom.chroma.addEventListener('input', (e) => { state.chroma = parseFloat(e.target.value); state.baseColor = null; dom.hex.value = ''; updateUI(); dom.savedPresetsSelect.value = ""; dom.btnDeleteTrigger.classList.add('hidden'); });
+        dom.hex.addEventListener('input', handleHex);
+        dom.picker.addEventListener('input', (e) => { dom.hex.value = e.target.value; handleHex(e); });
+
+        function handleHex(e) {
+            const val = dom.hex.value;
+            if (/^#?([0-9A-F]{3}){1,2}$/i.test(val)) {
+                dom.preview.style.backgroundColor = val;
+                const { h, c, l } = hexToOklch(val);
+                state.hue = h; state.chroma = c;
+                state.baseColor = { hex: val, l: l };
+                dom.hue.value = h; dom.chroma.value = c;
+                if (l > 0.99 || l < 0.05) dom.warning.classList.remove('hidden'); else dom.warning.classList.add('hidden');
+                dom.savedPresetsSelect.value = ""; dom.btnDeleteTrigger.classList.add('hidden');
+                updateUI();
+            }
+        }
+
+        dom.savedPresetsSelect.addEventListener('change', (e) => {
+            const name = e.target.value;
+            if (name && userPresets[name]) {
+                const p = userPresets[name];
+                applyPreset(p.hue, p.chroma);
+                dom.btnDeleteTrigger.classList.remove('hidden');
+            } else { dom.btnDeleteTrigger.classList.add('hidden'); }
+        });
+
+        dom.btnDeleteTrigger.addEventListener('click', () => { if(dom.savedPresetsSelect.value) { dom.deleteTargetName.textContent = dom.savedPresetsSelect.value; dom.deleteDialog.showModal(); } });
+        dom.btnCancelDelete.addEventListener('click', () => dom.deleteDialog.close());
+        dom.btnConfirmDelete.addEventListener('click', confirmDeletePreset);
+        dom.btnSaveTrigger.addEventListener('click', () => { dom.saveNameInput.value = ''; dom.saveDialog.showModal(); });
+        dom.btnCancelSave.addEventListener('click', () => dom.saveDialog.close());
+        dom.btnCloseSaveDialog.addEventListener('click', () => dom.saveDialog.close());
+        dom.btnConfirmSave.addEventListener('click', saveScale);
+
+        dom.presets.innerHTML = PRESETS.map(p => `<button onclick="applyPreset(${p.h}, ${p.c})" class="flex items-center gap-2 px-2.5 py-1 rounded-md border text-xs hover:bg-accent transition-colors"><div class="w-2.5 h-2.5 rounded-full" style="background-color: oklch(0.6 ${p.c} ${p.h})"></div>${p.name}</button>`).join('');
+
+        function applyPreset(h, c) {
+            state.hue = h; state.chroma = c;
+            state.baseColor = null;
+            dom.hex.value = '';
+            dom.warning.classList.add('hidden');
+            updateUI();
         }
 
         document.getElementById('btn-theme').addEventListener('click', () => {
@@ -948,24 +930,19 @@
                     const json = JSON.parse(e.target.result);
                     const sample = json['500'];
                     const match = sample && sample.match(/oklch\(([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)\)/);
-                    if (match) {
-                        applyPreset(parseFloat(match[3]), parseFloat(match[2])); 
-                        showToast("Scale imported!");
-                    } else throw new Error();
+                    if (match) { applyPreset(parseFloat(match[3]), parseFloat(match[2])); showToast("Scale imported!"); } else throw new Error();
                 } catch { showToast("Error: Invalid JSON", true); }
                 dom.fileImport.value = '';
             };
             reader.readAsText(file);
         });
 
-        // INIT
         initSavedPresets();
         lucide.createIcons();
         renderScale();
         applySurface('Zinc');
         updateUI();
         setTimeout(renderChart, 100); 
-
     </script>
 </body>
 </html>
