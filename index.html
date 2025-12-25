@@ -220,13 +220,21 @@
                         </div>
 
                         <div class="space-y-3">
-                            <label class="text-xs font-medium">System Presets</label>
+                            <label class="text-xs font-medium">Color Presets</label>
                             <div id="preset-container" class="flex flex-wrap gap-2"></div>
                         </div>
 
                         <div class="space-y-3">
                             <label class="text-xs font-medium">Surface Presets</label>
                             <div id="surface-container" class="flex flex-wrap gap-2"></div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <label class="text-xs font-medium">Surface Level</label>
+                            <div id="surface-level-container" class="grid grid-cols-2 gap-2">
+                                <button onclick="setSurfaceLevel('flat')" id="btn-level-flat" class="inline-flex items-center justify-center rounded-md text-xs font-medium border h-8 px-3 transition-colors hover:bg-accent">Flat</button>
+                                <button onclick="setSurfaceLevel('raised')" id="btn-level-raised" class="inline-flex items-center justify-center rounded-md text-xs font-medium border h-8 px-3 transition-colors hover:bg-accent">Raised</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -368,6 +376,11 @@
                         <div class="flex justify-end">
                             <div class="bg-[var(--color-600)] text-white text-xs px-3 py-2 rounded-lg rounded-tr-none max-w-[80%] shadow-sm">
                                 Just exported them. Check the dashboard!
+                            </div>
+                        </div>
+                        <div class="flex justify-start">
+                            <div class="bg-muted text-foreground text-xs px-3 py-2 rounded-lg rounded-tl-none max-w-[80%]">
+                                Awesome, checking now.
                             </div>
                         </div>
                     </div>
@@ -549,7 +562,7 @@
         const STORAGE_KEY = 'design-system-presets';
 
         // --- STATE ---
-        let state = { hue: 250, chroma: 0.14, baseColor: null };
+        let state = { hue: 250, chroma: 0.14, baseColor: null, surfaceLevel: 'flat' };
         let currentSurface = SURFACES[0];
         let currentScaleValues = {}; 
         let userPresets = {};
@@ -607,6 +620,9 @@
             deleteTargetName: document.getElementById('delete-target-name'),
             // Saved Presets Refs
             savedPresetsSelect: document.getElementById('saved-presets-select'),
+            // Level
+            btnLevelFlat: document.getElementById('btn-level-flat'),
+            btnLevelRaised: document.getElementById('btn-level-raised'),
         };
 
         // --- CORE UI UPDATES ---
@@ -650,7 +666,8 @@
             if(!dom.hex.value) dom.preview.style.backgroundColor = `oklch(0.64 ${state.chroma} ${state.hue})`;
             
             renderScale();
-            renderChart(); // Refresh chart with new colors
+            renderChart();
+            updateSurface(); // Ensure raised background is updated with new color
             window.dispatchEvent(new CustomEvent('colorChange', { detail: { hue: state.hue, chroma: state.chroma } }));
         }
 
@@ -702,8 +719,6 @@
                 return `${x},${y}`;
             });
 
-            // Smooth Curve (Catmull-Rom or simplified Bezier)
-            // For simple visualization, a polyline is okay, but let's try a simple cubic bezier
             let d = `M ${pts[0]}`;
             for (let i = 0; i < pts.length - 1; i++) {
                 const [x0, y0] = pts[i].split(',').map(Number);
@@ -713,10 +728,8 @@
                 d += ` C ${cp1x},${y0} ${cp2x},${y1} ${x1},${y1}`;
             }
 
-            // Fill Path
             const dFill = `${d} L ${w},${h} L 0,${h} Z`;
 
-            // SVG Template
             const svg = `
             <svg width="100%" height="100%" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" class="overflow-visible">
                 <defs>
@@ -735,7 +748,6 @@
             `;
             container.innerHTML = svg + '<div id="chart-tooltip" class="chart-tooltip"></div>';
 
-            // Add Interaction
             const dots = container.querySelectorAll('.chart-dot');
             const tooltip = document.getElementById('chart-tooltip');
             
@@ -744,19 +756,16 @@
                     const val = e.target.getAttribute('data-val');
                     tooltip.textContent = `$${val}`;
                     tooltip.style.opacity = '1';
-                    // Position
                     const rect = e.target.getBoundingClientRect();
                     const containerRect = container.getBoundingClientRect();
                     tooltip.style.left = `${(rect.left - containerRect.left) - 10}px`;
                     tooltip.style.top = `${(rect.top - containerRect.top) - 35}px`;
                 });
-                dot.addEventListener('mouseleave', () => {
-                   tooltip.style.opacity = '0';
-                });
+                dot.addEventListener('mouseleave', () => { tooltip.style.opacity = '0'; });
             });
         }
         
-        window.addEventListener('resize', renderChart); // Redraw chart on resize
+        window.addEventListener('resize', renderChart);
 
         // --- LOCAL STORAGE & PRESETS LOGIC ---
         function initSavedPresets() {
@@ -775,7 +784,6 @@
                 showToast('Please enter a preset name', true);
                 return;
             }
-            
             userPresets[name] = { hue: state.hue, chroma: state.chroma };
             localStorage.setItem(STORAGE_KEY, JSON.stringify(userPresets));
             renderSavedPresetsDropdown();
@@ -788,7 +796,6 @@
         function confirmDeletePreset() {
             const name = dom.savedPresetsSelect.value;
             if (!name) return;
-            
             delete userPresets[name];
             localStorage.setItem(STORAGE_KEY, JSON.stringify(userPresets));
             renderSavedPresetsDropdown();
@@ -810,17 +817,13 @@
         }
 
         // --- EVENT LISTENERS ---
-        
-        // Controls
         dom.hue.addEventListener('input', (e) => { 
             state.hue = parseFloat(e.target.value); state.baseColor = null; dom.hex.value = ''; updateUI(); 
-            dom.savedPresetsSelect.value = ""; 
-            dom.btnDeleteTrigger.classList.add('hidden');
+            dom.savedPresetsSelect.value = ""; dom.btnDeleteTrigger.classList.add('hidden');
         });
         dom.chroma.addEventListener('input', (e) => { 
             state.chroma = parseFloat(e.target.value); state.baseColor = null; dom.hex.value = ''; updateUI(); 
-            dom.savedPresetsSelect.value = "";
-            dom.btnDeleteTrigger.classList.add('hidden');
+            dom.savedPresetsSelect.value = ""; dom.btnDeleteTrigger.classList.add('hidden');
         });
         dom.hex.addEventListener('input', handleHex);
         dom.picker.addEventListener('input', (e) => { dom.hex.value = e.target.value; handleHex(e); });
@@ -840,7 +843,6 @@
             }
         }
 
-        // Saved Presets
         dom.savedPresetsSelect.addEventListener('change', (e) => {
             const name = e.target.value;
             if (name && userPresets[name]) {
@@ -852,7 +854,6 @@
             }
         });
 
-        // Delete Dialog
         dom.btnDeleteTrigger.addEventListener('click', () => {
             const name = dom.savedPresetsSelect.value;
             if(!name) return;
@@ -862,13 +863,11 @@
         dom.btnCancelDelete.addEventListener('click', () => dom.deleteDialog.close());
         dom.btnConfirmDelete.addEventListener('click', confirmDeletePreset);
 
-        // Save Modal
         dom.btnSaveTrigger.addEventListener('click', () => { dom.saveNameInput.value = ''; dom.saveDialog.showModal(); });
         dom.btnCancelSave.addEventListener('click', () => dom.saveDialog.close());
         dom.btnCloseSaveDialog.addEventListener('click', () => dom.saveDialog.close());
         dom.btnConfirmSave.addEventListener('click', saveScale);
 
-        // System Presets
         dom.presets.innerHTML = PRESETS.map(p => `<button onclick="applyPreset(${p.h}, ${p.c})" class="flex items-center gap-2 px-2.5 py-1 rounded-md border text-xs hover:bg-accent transition-colors"><div class="w-2.5 h-2.5 rounded-full" style="background-color: oklch(0.6 ${p.c} ${p.h})"></div>${p.name}</button>`).join('');
 
         function applyPreset(h, c) {
@@ -876,11 +875,29 @@
             state.baseColor = null;
             dom.hex.value = '';
             dom.warning.classList.add('hidden');
-            // Do not reset dropdown here as this function is re-used by saved presets
             updateUI();
         }
 
-        // Surfaces
+        // Surfaces & Levels
+        window.setSurfaceLevel = function(level) {
+            state.surfaceLevel = level;
+            updateSurface();
+        }
+
+        function renderSurfaceLevels() {
+            if(state.surfaceLevel === 'flat') {
+                dom.btnLevelFlat.classList.add('bg-primary', 'text-primary-foreground', 'border-primary');
+                dom.btnLevelFlat.classList.remove('hover:bg-accent');
+                dom.btnLevelRaised.classList.remove('bg-primary', 'text-primary-foreground', 'border-primary');
+                dom.btnLevelRaised.classList.add('hover:bg-accent');
+            } else {
+                dom.btnLevelRaised.classList.add('bg-primary', 'text-primary-foreground', 'border-primary');
+                dom.btnLevelRaised.classList.remove('hover:bg-accent');
+                dom.btnLevelFlat.classList.remove('bg-primary', 'text-primary-foreground', 'border-primary');
+                dom.btnLevelFlat.classList.add('hover:bg-accent');
+            }
+        }
+
         function renderSurfaces() {
             dom.surfaceContainer.innerHTML = SURFACES.map(s => {
                 const isActive = currentSurface.name === s.name;
@@ -892,24 +909,34 @@
 
         window.applySurface = function(name) {
             currentSurface = SURFACES.find(s => s.name === name);
+            updateSurface();
+        }
+
+        function updateSurface() {
             const isDark = root.classList.contains('dark');
             const theme = isDark ? currentSurface.dark : currentSurface.light;
-            root.style.setProperty('--background', theme.bg);
             root.style.setProperty('--card', theme.card);
             root.style.setProperty('--border', theme.border);
             root.style.setProperty('--input', theme.border);
+
+            if (state.surfaceLevel === 'flat') {
+                root.style.setProperty('--background', theme.bg);
+            } else {
+                const bgToken = isDark ? 'var(--color-1100)' : 'var(--color-50)';
+                root.style.setProperty('--background', bgToken);
+            }
             renderSurfaces();
+            renderSurfaceLevels();
         }
 
-        // Theme & Misc
         document.getElementById('btn-theme').addEventListener('click', () => {
             const isDark = document.documentElement.classList.toggle('dark');
             document.getElementById('icon-theme').setAttribute('data-lucide', isDark ? 'sun' : 'moon');
             lucide.createIcons();
-            applySurface(currentSurface.name); 
+            updateSurface();
         });
         document.getElementById('btn-copy-json').addEventListener('click', () => copyToClipboard(JSON.stringify(currentScaleValues, null, 2), 'JSON Copied!'));
-        document.getElementById('btn-reset').addEventListener('click', () => { applyPreset(250, 0.14); applySurface('Zinc'); dom.savedPresetsSelect.value=""; dom.btnDeleteTrigger.classList.add('hidden'); });
+        document.getElementById('btn-reset').addEventListener('click', () => { applyPreset(250, 0.14); applySurface('Zinc'); setSurfaceLevel('flat'); dom.savedPresetsSelect.value=""; dom.btnDeleteTrigger.classList.add('hidden'); });
 
         dom.btnImport.addEventListener('click', () => dom.fileImport.click());
         dom.fileImport.addEventListener('change', (e) => {
@@ -935,10 +962,8 @@
         initSavedPresets();
         lucide.createIcons();
         renderScale();
-        renderSurfaces();
-        updateUI();
         applySurface('Zinc');
-        // Initial chart render
+        updateUI();
         setTimeout(renderChart, 100); 
 
     </script>
