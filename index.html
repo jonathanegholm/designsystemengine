@@ -88,6 +88,48 @@
             color: hsl(var(--foreground));
             transition: background-color 0.3s, color 0.3s, border-color 0.3s;
         }
+
+        /* Border Radius Presets */
+        :root {
+            --card-radius: 0.375rem; /* default - medium border radius */
+        }
+
+        body[data-border-radius="none"] {
+            --card-radius: 0;
+        }
+
+        body[data-border-radius="default"] {
+            --card-radius: 0.375rem; /* medium border radius */
+        }
+
+        body[data-border-radius="rounded"] {
+            --card-radius: 0.75rem; /* larger border radius (previously default) */
+        }
+
+        body[data-border-radius="full"] {
+            --card-radius: calc(2.25rem / 2); /* pill shape based on large button height (h-9) */
+        }
+
+        /* Apply border radius to all UI elements (excluding rounded-full which stays circular) */
+        .rounded-sm {
+            border-radius: var(--card-radius) !important;
+            transition: border-radius 0.3s ease;
+        }
+
+        .rounded-md {
+            border-radius: var(--card-radius) !important;
+            transition: border-radius 0.3s ease;
+        }
+
+        .rounded-lg {
+            border-radius: var(--card-radius) !important;
+            transition: border-radius 0.3s ease;
+        }
+
+        .rounded-xl {
+            border-radius: var(--card-radius) !important;
+            transition: border-radius 0.3s ease;
+        }
         
         *, *::before, *::after {
             transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
@@ -114,7 +156,12 @@
         .masonry-grid { column-count: 1; column-gap: 1.5rem; }
         @media (min-width: 768px) { .masonry-grid { column-count: 2; } }
         @media (min-width: 1024px) { .masonry-grid { column-count: 3; } }
-        .masonry-item { break-inside: avoid; margin-bottom: 1.5rem; }
+        .masonry-item { 
+            break-inside: avoid; 
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.6s ease-out forwards;
+            opacity: 0;
+        }
 
         /* Dialog Animation */
         dialog[open] { animation: fadeIn 0.2s ease-out; }
@@ -135,6 +182,47 @@
             opacity: 0;
             z-index: 50;
         }
+
+        /* Card Load Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-animate {
+            animation: fadeInUp 0.6s ease-out forwards;
+            opacity: 0;
+        }
+
+        .card-animate-delay-1 {
+            animation-delay: 0.1s;
+        }
+
+        .card-animate-delay-2 {
+            animation-delay: 0.2s;
+        }
+
+        .card-animate-delay-3 {
+            animation-delay: 0.3s;
+        }
+
+        .masonry-item:nth-child(1) { animation-delay: 0.4s; }
+        .masonry-item:nth-child(2) { animation-delay: 0.5s; }
+        .masonry-item:nth-child(3) { animation-delay: 0.6s; }
+        .masonry-item:nth-child(4) { animation-delay: 0.7s; }
+        .masonry-item:nth-child(5) { animation-delay: 0.8s; }
+        .masonry-item:nth-child(6) { animation-delay: 0.9s; }
+        .masonry-item:nth-child(7) { animation-delay: 1.0s; }
+        .masonry-item:nth-child(8) { animation-delay: 1.1s; }
+        .masonry-item:nth-child(9) { animation-delay: 1.2s; }
+        .masonry-item:nth-child(10) { animation-delay: 1.3s; }
+        .masonry-item:nth-child(n+11) { animation-delay: 1.4s; }
     </style>
 </head>
 <body class="font-sans min-h-screen flex flex-col">
@@ -161,129 +249,135 @@
         </div>
     </header>
 
-    <main class="container mx-auto px-4 py-8 space-y-10 flex-grow">
+    <div class="container mx-auto px-4 py-8 flex-grow flex gap-8">
         
-        <section class="grid grid-cols-1 xl:grid-cols-12 gap-8">
-            
-            <div class="xl:col-span-4 space-y-6">
-                <div class="rounded-xl border bg-card text-card-foreground shadow-sm">
-                    <div class="p-6 space-y-6">
-                        <div class="flex items-center justify-between">
-                            <h3 class="font-semibold leading-none tracking-tight">Configuration</h3>
-                            <span class="text-xs text-muted-foreground">OKLCH</span>
-                        </div>
+        <aside class="w-full xl:w-80 shrink-0">
+            <div class="rounded-xl border bg-card text-card-foreground shadow-sm sticky top-20 card-animate max-h-[calc(100vh-5rem)] overflow-y-auto">
+                <div class="p-6 space-y-6">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-semibold leading-none tracking-tight">Configuration</h3>
+                        <span class="text-xs text-muted-foreground">OKLCH</span>
+                    </div>
 
-                        <div class="space-y-2">
-                            <label class="text-xs font-medium leading-none">Base Color</label>
-                            <div class="flex h-9 w-full rounded-md border border-input bg-transparent shadow-sm focus-within:ring-1 focus-within:ring-ring focus-within:border-primary overflow-hidden">
-                                <div class="relative w-10 border-r border-input bg-muted/20 hover:bg-muted/40 transition-colors flex items-center justify-center shrink-0">
-                                    <div id="preview-swatch" class="w-4 h-4 rounded-sm shadow-sm ring-1 ring-inset ring-black/10 dark:ring-white/10"></div>
-                                    <input id="input-color-picker" type="color" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
-                                </div>
-                                <input id="input-hex" type="text" placeholder="#000000" class="flex-1 bg-transparent px-3 py-1 text-sm outline-none placeholder:text-muted-foreground uppercase font-mono" />
+                    <div class="space-y-2">
+                        <label class="text-xs font-medium leading-none">Base Color</label>
+                        <div class="flex h-9 w-full rounded-md border border-input bg-transparent shadow-sm focus-within:ring-1 focus-within:ring-ring focus-within:border-primary overflow-hidden">
+                            <div class="relative w-10 border-r border-input bg-muted/20 hover:bg-muted/40 transition-colors flex items-center justify-center shrink-0">
+                                <div id="preview-swatch" class="w-4 h-4 rounded-sm shadow-sm ring-1 ring-inset ring-black/10 dark:ring-white/10"></div>
+                                <input id="input-color-picker" type="color" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
                             </div>
-                            <p id="hex-warning" class="hidden text-[11px] text-amber-600 font-medium flex items-center gap-1 mt-1">
-                                <i data-lucide="alert-triangle" class="w-3 h-3"></i> <span>Off-scale. Snapping to nearest lightness.</span>
-                            </p>
+                            <input id="input-hex" type="text" placeholder="#000000" class="flex-1 bg-transparent px-3 py-1 text-sm outline-none placeholder:text-muted-foreground uppercase font-mono" />
                         </div>
+                        <p id="hex-warning" class="hidden text-[11px] text-amber-600 font-medium flex items-center gap-1 mt-1">
+                            <i data-lucide="alert-triangle" class="w-3 h-3"></i> <span>Off-scale. Snapping to nearest lightness.</span>
+                        </p>
+                    </div>
 
-                        <div class="space-y-5">
-                            <div class="space-y-3">
-                                <div class="flex justify-between">
-                                    <label class="text-xs font-medium">Hue</label>
-                                    <span id="val-hue" class="text-xs font-mono text-muted-foreground">0</span>
-                                </div>
-                                <input id="slider-hue" type="range" min="0" max="360" step="1" value="250" />
-                            </div>
-                            <div class="space-y-3">
-                                <div class="flex justify-between">
-                                    <label class="text-xs font-medium">Chroma (Vibrancy)</label>
-                                    <span id="val-chroma" class="text-xs font-mono text-muted-foreground">0.14</span>
-                                </div>
-                                <input id="slider-chroma" type="range" min="0" max="0.35" step="0.001" value="0.14" />
-                            </div>
-                        </div>
-
-                        <div class="h-px bg-border"></div>
-
+                    <div class="space-y-5">
                         <div class="space-y-3">
-                            <label class="text-xs font-medium flex items-center gap-2">
-                                <i data-lucide="save" class="w-3 h-3"></i> My Saved Scales
-                            </label>
-                            <div class="flex gap-2">
-                                <select id="saved-presets-select" class="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50">
-                                    <option value="">-- Select Saved Scale --</option>
-                                </select>
-                                <button id="btn-delete-trigger" class="hidden inline-flex items-center justify-center rounded-md text-sm font-medium border border-input bg-transparent hover:bg-destructive hover:text-destructive-foreground hover:border-destructive h-9 w-9 transition-colors" title="Delete Preset">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                </button>
+                            <div class="flex justify-between">
+                                <label class="text-xs font-medium">Hue</label>
+                                <span id="val-hue" class="text-xs font-mono text-muted-foreground">0</span>
                             </div>
+                            <input id="slider-hue" type="range" min="0" max="360" step="1" value="250" />
                         </div>
-
                         <div class="space-y-3">
-                            <label class="text-xs font-medium">Color Presets</label>
-                            <div id="preset-container" class="flex flex-wrap gap-2"></div>
-                        </div>
-
-                        <div class="space-y-3">
-                            <label class="text-xs font-medium">Surface Presets</label>
-                            <div id="surface-container" class="flex flex-wrap gap-2"></div>
-                        </div>
-
-                        <div class="space-y-3">
-                            <label class="text-xs font-medium">Surface Level</label>
-                            <div id="surface-level-container" class="grid grid-cols-2 gap-2">
-                                <button onclick="setSurfaceLevel('flat')" id="btn-level-flat" class="inline-flex items-center justify-center rounded-md text-xs font-medium border h-8 px-3 transition-colors hover:bg-accent">Flat</button>
-                                <button onclick="setSurfaceLevel('raised')" id="btn-level-raised" class="inline-flex items-center justify-center rounded-md text-xs font-medium border h-8 px-3 transition-colors hover:bg-accent">Raised</button>
+                            <div class="flex justify-between">
+                                <label class="text-xs font-medium">Chroma (Vibrancy)</label>
+                                <span id="val-chroma" class="text-xs font-mono text-muted-foreground">0.14</span>
                             </div>
+                            <input id="slider-chroma" type="range" min="0" max="0.35" step="0.001" value="0.14" />
+                        </div>
+                    </div>
+
+                    <div class="h-px bg-border"></div>
+
+                    <div class="space-y-3">
+                        <label class="text-xs font-medium flex items-center gap-2">
+                            <i data-lucide="save" class="w-3 h-3"></i> My Saved Scales
+                        </label>
+                        <div class="flex gap-2">
+                            <select id="saved-presets-select" class="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50">
+                                <option value="">-- Select Saved Scale --</option>
+                            </select>
+                            <button id="btn-delete-trigger" class="hidden inline-flex items-center justify-center rounded-md text-sm font-medium border border-input bg-transparent hover:bg-destructive hover:text-destructive-foreground hover:border-destructive h-9 w-9 transition-colors" title="Delete Preset">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="text-xs font-medium">Color Presets</label>
+                        <div id="preset-container" class="flex flex-wrap gap-2"></div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="text-xs font-medium">Surface Presets</label>
+                        <div id="surface-container" class="flex flex-wrap gap-2"></div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="text-xs font-medium">Surface Level</label>
+                        <div id="surface-level-container" class="grid grid-cols-2 gap-2">
+                            <button onclick="setSurfaceLevel('flat')" id="btn-level-flat" class="inline-flex items-center justify-center rounded-md text-xs font-medium border h-8 px-3 transition-colors hover:bg-accent">Flat</button>
+                            <button onclick="setSurfaceLevel('raised')" id="btn-level-raised" class="inline-flex items-center justify-center rounded-md text-xs font-medium border h-8 px-3 transition-colors hover:bg-accent">Raised</button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="text-xs font-medium">Border Radii</label>
+                        <div id="border-radius-container" class="grid grid-cols-4 gap-2">
+                            <button onclick="setBorderRadius('none')" id="btn-radius-none" class="inline-flex items-center justify-center rounded-md text-xs font-medium border h-8 px-3 transition-colors hover:bg-accent">None</button>
+                            <button onclick="setBorderRadius('default')" id="btn-radius-default" class="inline-flex items-center justify-center rounded-md text-xs font-medium border h-8 px-3 transition-colors hover:bg-accent">Default</button>
+                            <button onclick="setBorderRadius('rounded')" id="btn-radius-rounded" class="inline-flex items-center justify-center rounded-md text-xs font-medium border h-8 px-3 transition-colors hover:bg-accent">Rounded</button>
+                            <button onclick="setBorderRadius('full')" id="btn-radius-full" class="inline-flex items-center justify-center rounded-md text-xs font-medium border h-8 px-3 transition-colors hover:bg-accent">Full</button>
                         </div>
                     </div>
                 </div>
             </div>
+        </aside>
 
-            <div class="xl:col-span-8 flex flex-col gap-6">
-                <div class="rounded-xl border bg-card text-card-foreground shadow-sm h-full flex flex-col">
-                    <div class="flex flex-row items-center justify-between space-y-0 p-6 pb-2">
-                        <div class="space-y-1">
-                            <h3 class="font-semibold leading-none tracking-tight">Generated Scale</h3>
-                            <p class="text-xs text-muted-foreground">Click any stop to copy value.</p>
-                        </div>
-                        
-                        <div class="flex items-center gap-2">
-                            <input type="file" id="file-import" accept=".json" class="hidden" />
-                            <button id="btn-import-json" class="inline-flex items-center justify-center rounded-md text-xs font-medium border border-input bg-transparent shadow-sm hover:bg-accent hover:text-accent-foreground h-8 px-3 transition-all active:scale-95">
-                                <i data-lucide="upload" class="mr-2 h-3 w-3"></i> Import
-                            </button>
-                            
-                            <button id="btn-copy-json" class="inline-flex items-center justify-center rounded-md text-xs font-medium border border-input bg-transparent shadow-sm hover:bg-accent hover:text-accent-foreground h-8 px-3 transition-all active:scale-95">
-                                <i data-lucide="braces" class="mr-2 h-3 w-3"></i> Copy JSON
-                            </button>
-
-                            <button id="btn-save-modal-trigger" class="inline-flex items-center justify-center rounded-md text-xs font-medium bg-primary text-primary-foreground shadow hover:bg-primary/90 h-8 px-3 transition-all active:scale-95">
-                                <i data-lucide="save" class="mr-2 h-3 w-3"></i> Save Scale
-                            </button>
-                        </div>
+        <main class="flex-1 space-y-10">
+            <div class="rounded-xl border bg-card text-card-foreground shadow-sm card-animate card-animate-delay-1">
+                <div class="flex flex-row items-center justify-between space-y-0 p-6 pb-2">
+                    <div class="space-y-1">
+                        <h3 class="font-semibold leading-none tracking-tight">Generated Scale</h3>
+                        <p class="text-xs text-muted-foreground">Click any stop to copy value.</p>
                     </div>
                     
-                    <div class="p-6 pt-4 flex-grow flex flex-col justify-center">
-                        <div id="scale-container" class="grid grid-cols-11 gap-1 h-32 md:h-48 w-full rounded-lg overflow-hidden border"></div>
-                        <div class="flex justify-between mt-3 text-[10px] text-muted-foreground font-mono uppercase tracking-widest">
-                            <span>50 (Light)</span>
-                            <span>1100 (Dark)</span>
-                        </div>
+                    <div class="flex items-center gap-2">
+                        <input type="file" id="file-import" accept=".json" class="hidden" />
+                        <button id="btn-import-json" class="inline-flex items-center justify-center rounded-md text-xs font-medium border border-input bg-transparent shadow-sm hover:bg-accent hover:text-accent-foreground h-8 px-3 transition-all active:scale-95">
+                            <i data-lucide="upload" class="mr-2 h-3 w-3"></i> Import
+                        </button>
+                        
+                        <button id="btn-copy-json" class="inline-flex items-center justify-center rounded-md text-xs font-medium border border-input bg-transparent shadow-sm hover:bg-accent hover:text-accent-foreground h-8 px-3 transition-all active:scale-95">
+                            <i data-lucide="braces" class="mr-2 h-3 w-3"></i> Copy JSON
+                        </button>
+
+                        <button id="btn-save-modal-trigger" class="inline-flex items-center justify-center rounded-md text-xs font-medium bg-primary text-primary-foreground shadow hover:bg-primary/90 h-8 px-3 transition-all active:scale-95">
+                            <i data-lucide="save" class="mr-2 h-3 w-3"></i> Save Scale
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="p-6 pt-4 flex flex-col">
+                    <div id="scale-container" class="grid grid-cols-11 gap-1 h-32 md:h-48 w-full rounded-lg overflow-hidden border"></div>
+                    <div class="flex justify-between mt-3 text-[10px] text-muted-foreground font-mono uppercase tracking-widest">
+                        <span>50 (Light)</span>
+                        <span>1100 (Dark)</span>
                     </div>
                 </div>
             </div>
-        </section>
 
-        <div class="space-y-6">
-            <div class="flex items-center gap-4">
-                <div class="h-px bg-border flex-1"></div>
-                <span class="text-sm font-medium text-muted-foreground">Interface Preview</span>
-                <div class="h-px bg-border flex-1"></div>
-            </div>
+            <div class="space-y-6">
+                <div class="flex items-center gap-4">
+                    <div class="h-px bg-border flex-1"></div>
+                    <span class="text-sm font-medium text-muted-foreground">Interface Preview</span>
+                    <div class="h-px bg-border flex-1"></div>
+                </div>
 
-            <div class="masonry-grid">
+                <div class="masonry-grid">
                 
                 <div class="masonry-item rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden">
                     <div class="p-6 pb-2">
@@ -484,7 +578,8 @@
 
             </div>
         </div>
-    </main>
+        </main>
+    </div>
 
     <dialog id="save-dialog" class="bg-background text-foreground border border-border shadow-lg rounded-xl p-0 w-full max-w-sm backdrop:bg-black/50 backdrop:backdrop-blur-sm z-50">
         <div class="flex flex-col gap-4 p-6">
@@ -584,7 +679,7 @@
         const STORAGE_KEY = 'design-system-presets';
 
         // --- STATE ---
-        let state = { hue: 250, chroma: 0.14, baseColor: null, surfaceLevel: 'flat' };
+        let state = { hue: 250, chroma: 0.14, baseColor: null, surfaceLevel: 'flat', borderRadius: 'default' };
         let currentSurface = SURFACES[0];
         let currentScaleValues = {}; 
         let userPresets = {};
@@ -642,6 +737,11 @@
             // Level
             btnLevelFlat: document.getElementById('btn-level-flat'),
             btnLevelRaised: document.getElementById('btn-level-raised'),
+            // Border Radius
+            btnRadiusNone: document.getElementById('btn-radius-none'),
+            btnRadiusDefault: document.getElementById('btn-radius-default'),
+            btnRadiusRounded: document.getElementById('btn-radius-rounded'),
+            btnRadiusFull: document.getElementById('btn-radius-full'),
         };
 
         // --- CORE UI UPDATES ---
@@ -864,6 +964,40 @@
             renderSurfaceLevels();
         }
 
+        // --- BORDER RADIUS ---
+        window.setBorderRadius = function(radius) {
+            state.borderRadius = radius;
+            document.body.setAttribute('data-border-radius', radius);
+            renderBorderRadius();
+        }
+
+        function renderBorderRadius() {
+            // Reset all buttons
+            dom.btnRadiusNone.classList.remove('bg-primary', 'text-primary-foreground', 'border-primary');
+            dom.btnRadiusNone.classList.add('hover:bg-accent');
+            dom.btnRadiusDefault.classList.remove('bg-primary', 'text-primary-foreground', 'border-primary');
+            dom.btnRadiusDefault.classList.add('hover:bg-accent');
+            dom.btnRadiusRounded.classList.remove('bg-primary', 'text-primary-foreground', 'border-primary');
+            dom.btnRadiusRounded.classList.add('hover:bg-accent');
+            dom.btnRadiusFull.classList.remove('bg-primary', 'text-primary-foreground', 'border-primary');
+            dom.btnRadiusFull.classList.add('hover:bg-accent');
+
+            // Activate selected button
+            if(state.borderRadius === 'none') {
+                dom.btnRadiusNone.classList.add('bg-primary', 'text-primary-foreground', 'border-primary');
+                dom.btnRadiusNone.classList.remove('hover:bg-accent');
+            } else if(state.borderRadius === 'default') {
+                dom.btnRadiusDefault.classList.add('bg-primary', 'text-primary-foreground', 'border-primary');
+                dom.btnRadiusDefault.classList.remove('hover:bg-accent');
+            } else if(state.borderRadius === 'rounded') {
+                dom.btnRadiusRounded.classList.add('bg-primary', 'text-primary-foreground', 'border-primary');
+                dom.btnRadiusRounded.classList.remove('hover:bg-accent');
+            } else if(state.borderRadius === 'full') {
+                dom.btnRadiusFull.classList.add('bg-primary', 'text-primary-foreground', 'border-primary');
+                dom.btnRadiusFull.classList.remove('hover:bg-accent');
+            }
+        }
+
         // --- EVENT LISTENERS ---
         dom.hue.addEventListener('input', (e) => { state.hue = parseFloat(e.target.value); state.baseColor = null; dom.hex.value = ''; updateUI(); dom.savedPresetsSelect.value = ""; dom.btnDeleteTrigger.classList.add('hidden'); });
         dom.chroma.addEventListener('input', (e) => { state.chroma = parseFloat(e.target.value); state.baseColor = null; dom.hex.value = ''; updateUI(); dom.savedPresetsSelect.value = ""; dom.btnDeleteTrigger.classList.add('hidden'); });
@@ -918,7 +1052,7 @@
             updateSurface();
         });
         document.getElementById('btn-copy-json').addEventListener('click', () => copyToClipboard(JSON.stringify(currentScaleValues, null, 2), 'JSON Copied!'));
-        document.getElementById('btn-reset').addEventListener('click', () => { applyPreset(250, 0.14); applySurface('Zinc'); setSurfaceLevel('flat'); dom.savedPresetsSelect.value=""; dom.btnDeleteTrigger.classList.add('hidden'); });
+        document.getElementById('btn-reset').addEventListener('click', () => { applyPreset(250, 0.14); applySurface('Zinc'); setSurfaceLevel('flat'); setBorderRadius('default'); dom.savedPresetsSelect.value=""; dom.btnDeleteTrigger.classList.add('hidden'); });
 
         dom.btnImport.addEventListener('click', () => dom.fileImport.click());
         dom.fileImport.addEventListener('change', (e) => {
@@ -941,6 +1075,7 @@
         lucide.createIcons();
         renderScale();
         applySurface('Zinc');
+        setBorderRadius('default');
         updateUI();
         setTimeout(renderChart, 100); 
     </script>
