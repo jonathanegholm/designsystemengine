@@ -217,7 +217,7 @@ function updateUI() {
     // Apply same chroma adjustments as loop
     if (stop600.l > 0.92) adjChroma600 = state.chroma * 0.5;
     if (stop600.l < 0.2) adjChroma600 = state.chroma * 0.8;
-    
+
     const rgb600 = oklchToSrgb(stop600.l, adjChroma600, state.hue);
     const white = { r: 255, g: 255, b: 255 };
     const black = { r: 0, g: 0, b: 0 };
@@ -623,4 +623,12 @@ setButtonStyle('flat');
 setShadows('default');
 window.setFontFamily('Inter, sans-serif');
 updateUI();
+document.querySelectorAll('.glow-card').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+        card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+    });
+});
+
 setTimeout(renderChart, 100); 
