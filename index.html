@@ -312,6 +312,37 @@
         .masonry-item:nth-child(n+11) {
             animation-delay: 1.4s;
         }
+
+        /* Button Style Presets */
+        body[data-button-style="gradient"] .bg-primary,
+        body[data-button-style="gradient"] .bg-\[var\(--color-600\)\] {
+            background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.1));
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        body[data-button-style="bevel"] .bg-primary,
+        body[data-button-style="bevel"] .bg-\[var\(--color-600\)\] {
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 2px 0 rgba(0, 0, 0, 0.2);
+            transform: translateY(-1px);
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+
+        body[data-button-style="bevel"] .bg-primary:active,
+        body[data-button-style="bevel"] .bg-\[var\(--color-600\)\]:active {
+            transform: translateY(1px);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Shadow Presets */
+        body[data-shadows="none"] .shadow-sm,
+        body[data-shadows="none"] .shadow {
+            box-shadow: none !important;
+        }
+
+        body[data-shadows="large"] .shadow-sm,
+        body[data-shadows="large"] .shadow {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+        }
     </style>
 </head>
 
@@ -443,6 +474,30 @@
                                 class="inline-flex items-center justify-center rounded-md text-xs font-medium border h-8 px-3 transition-colors hover:bg-accent">Rounded</button>
                             <button onclick="setBorderRadius('full')" id="btn-radius-full"
                                 class="inline-flex items-center justify-center rounded-md text-xs font-medium border h-8 px-3 transition-colors hover:bg-accent">Full</button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="text-xs font-medium">Button Style</label>
+                        <div id="button-style-container" class="grid grid-cols-3 gap-2">
+                            <button onclick="setButtonStyle('flat')" id="btn-style-flat"
+                                class="inline-flex items-center justify-center rounded-md text-xs font-medium border h-8 px-3 transition-colors hover:bg-accent">Flat</button>
+                            <button onclick="setButtonStyle('gradient')" id="btn-style-gradient"
+                                class="inline-flex items-center justify-center rounded-md text-xs font-medium border h-8 px-3 transition-colors hover:bg-accent">Gradient</button>
+                            <button onclick="setButtonStyle('bevel')" id="btn-style-bevel"
+                                class="inline-flex items-center justify-center rounded-md text-xs font-medium border h-8 px-3 transition-colors hover:bg-accent">Bevel</button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="text-xs font-medium">Shadows</label>
+                        <div id="shadows-container" class="grid grid-cols-3 gap-2">
+                            <button onclick="setShadows('none')" id="btn-shadow-none"
+                                class="inline-flex items-center justify-center rounded-md text-xs font-medium border h-8 px-3 transition-colors hover:bg-accent">None</button>
+                            <button onclick="setShadows('default')" id="btn-shadow-default"
+                                class="inline-flex items-center justify-center rounded-md text-xs font-medium border h-8 px-3 transition-colors hover:bg-accent">Default</button>
+                            <button onclick="setShadows('large')" id="btn-shadow-large"
+                                class="inline-flex items-center justify-center rounded-md text-xs font-medium border h-8 px-3 transition-colors hover:bg-accent">Large</button>
                         </div>
                     </div>
                 </div>
@@ -835,7 +890,7 @@
         const STORAGE_KEY = 'design-system-presets';
 
         // --- STATE ---
-        let state = { hue: 250, chroma: 0.14, baseColor: null, surfaceLevel: 'flat', borderRadius: 'default' };
+        let state = { hue: 250, chroma: 0.14, baseColor: null, surfaceLevel: 'flat', borderRadius: 'default', buttonStyle: 'flat', shadows: 'default' };
         let currentSurface = SURFACES[0];
         let currentScaleValues = {};
         let userPresets = {};
@@ -898,6 +953,14 @@
             btnRadiusDefault: document.getElementById('btn-radius-default'),
             btnRadiusRounded: document.getElementById('btn-radius-rounded'),
             btnRadiusFull: document.getElementById('btn-radius-full'),
+            // Button Style
+            btnStyleFlat: document.getElementById('btn-style-flat'),
+            btnStyleGradient: document.getElementById('btn-style-gradient'),
+            btnStyleBevel: document.getElementById('btn-style-bevel'),
+            // Shadows
+            btnShadowNone: document.getElementById('btn-shadow-none'),
+            btnShadowDefault: document.getElementById('btn-shadow-default'),
+            btnShadowLarge: document.getElementById('btn-shadow-large'),
         };
 
         // --- CORE UI UPDATES ---
@@ -1154,6 +1217,56 @@
             }
         }
 
+        // --- BUTTON STYLE ---
+        window.setButtonStyle = function (style) {
+            state.buttonStyle = style;
+            document.body.setAttribute('data-button-style', style);
+            renderButtonStyle();
+        }
+
+        function renderButtonStyle() {
+            // Reset
+            ['flat', 'gradient', 'bevel'].forEach(s => {
+                const btn = document.getElementById(`btn-style-${s}`);
+                if (btn) {
+                    btn.classList.remove('bg-primary', 'text-primary-foreground', 'border-primary');
+                    btn.classList.add('hover:bg-accent');
+                }
+            });
+
+            // Active
+            const activeBtn = document.getElementById(`btn-style-${state.buttonStyle}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-primary', 'text-primary-foreground', 'border-primary');
+                activeBtn.classList.remove('hover:bg-accent');
+            }
+        }
+
+        // --- SHADOWS ---
+        window.setShadows = function (style) {
+            state.shadows = style;
+            document.body.setAttribute('data-shadows', style);
+            renderShadows();
+        }
+
+        function renderShadows() {
+            // Reset
+            ['none', 'default', 'large'].forEach(s => {
+                const btn = document.getElementById(`btn-shadow-${s}`);
+                if (btn) {
+                    btn.classList.remove('bg-primary', 'text-primary-foreground', 'border-primary');
+                    btn.classList.add('hover:bg-accent');
+                }
+            });
+
+            // Active
+            const activeBtn = document.getElementById(`btn-shadow-${state.shadows}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-primary', 'text-primary-foreground', 'border-primary');
+                activeBtn.classList.remove('hover:bg-accent');
+            }
+        }
+
         // --- EVENT LISTENERS ---
         dom.hue.addEventListener('input', (e) => { state.hue = parseFloat(e.target.value); state.baseColor = null; dom.hex.value = ''; updateUI(); dom.savedPresetsSelect.value = ""; dom.btnDeleteTrigger.classList.add('hidden'); });
         dom.chroma.addEventListener('input', (e) => { state.chroma = parseFloat(e.target.value); state.baseColor = null; dom.hex.value = ''; updateUI(); dom.savedPresetsSelect.value = ""; dom.btnDeleteTrigger.classList.add('hidden'); });
@@ -1208,7 +1321,7 @@
             updateSurface();
         });
         document.getElementById('btn-copy-json').addEventListener('click', () => copyToClipboard(JSON.stringify(currentScaleValues, null, 2), 'JSON Copied!'));
-        document.getElementById('btn-reset').addEventListener('click', () => { applyPreset(250, 0.14); applySurface('Zinc'); setSurfaceLevel('flat'); setBorderRadius('default'); dom.savedPresetsSelect.value = ""; dom.btnDeleteTrigger.classList.add('hidden'); });
+        document.getElementById('btn-reset').addEventListener('click', () => { applyPreset(250, 0.14); applySurface('Zinc'); setSurfaceLevel('flat'); setBorderRadius('default'); setButtonStyle('flat'); setShadows('default'); dom.savedPresetsSelect.value = ""; dom.btnDeleteTrigger.classList.add('hidden'); });
 
         dom.btnImport.addEventListener('click', () => dom.fileImport.click());
         dom.fileImport.addEventListener('change', (e) => {
@@ -1232,6 +1345,8 @@
         renderScale();
         applySurface('Zinc');
         setBorderRadius('default');
+        setButtonStyle('flat');
+        setShadows('default');
         updateUI();
         setTimeout(renderChart, 100); 
     </script>
