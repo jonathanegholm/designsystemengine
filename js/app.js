@@ -211,23 +211,6 @@ function updateUI() {
 
     if (!dom.hex.value) dom.preview.style.backgroundColor = `oklch(0.64 ${state.chroma} ${state.hue})`;
 
-    // Process Contrast for 600 (Primary)
-    const stop600 = STOPS.find(s => s.name === '600');
-    let adjChroma600 = state.chroma;
-    // Apply same chroma adjustments as loop
-    if (stop600.l > 0.92) adjChroma600 = state.chroma * 0.5;
-    if (stop600.l < 0.2) adjChroma600 = state.chroma * 0.8;
-
-    const rgb600 = oklchToSrgb(stop600.l, adjChroma600, state.hue);
-    const white = { r: 255, g: 255, b: 255 };
-    const black = { r: 0, g: 0, b: 0 };
-    const contrastWhite = getContrast(rgb600, white);
-    const contrastBlack = getContrast(rgb600, black);
-
-    const contrastColor = (contrastWhite >= 4.5 || contrastWhite > contrastBlack) ? 'white' : 'black';
-    root.style.setProperty('--color-600-contrast', contrastColor);
-
-
     renderScale();
     renderChart();
     window.dispatchEvent(new CustomEvent('colorChange', { detail: { hue: state.hue, chroma: state.chroma } }));
