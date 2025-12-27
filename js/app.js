@@ -373,14 +373,14 @@ window.setSurfaceLevel = function (level) {
 
 function renderSurfaceLevels() {
     if (state.surfaceLevel === 'flat') {
-        dom.btnLevelFlat.classList.add('bg-primary', 'text-primary-foreground', 'border-primary');
+        dom.btnLevelFlat.classList.add('border-[var(--color-600)]', 'text-[var(--color-600)]');
         dom.btnLevelFlat.classList.remove('hover:bg-accent');
-        dom.btnLevelRaised.classList.remove('bg-primary', 'text-primary-foreground', 'border-primary');
+        dom.btnLevelRaised.classList.remove('border-[var(--color-600)]', 'text-[var(--color-600)]');
         dom.btnLevelRaised.classList.add('hover:bg-accent');
     } else {
-        dom.btnLevelRaised.classList.add('bg-primary', 'text-primary-foreground', 'border-primary');
+        dom.btnLevelRaised.classList.add('border-[var(--color-600)]', 'text-[var(--color-600)]');
         dom.btnLevelRaised.classList.remove('hover:bg-accent');
-        dom.btnLevelFlat.classList.remove('bg-primary', 'text-primary-foreground', 'border-primary');
+        dom.btnLevelFlat.classList.remove('border-[var(--color-600)]', 'text-[var(--color-600)]');
         dom.btnLevelFlat.classList.add('hover:bg-accent');
     }
 }
@@ -388,7 +388,7 @@ function renderSurfaceLevels() {
 function renderSurfaces() {
     dom.surfaceContainer.innerHTML = SURFACES.map(s => {
         const isActive = currentSurface.name === s.name;
-        const activeClass = isActive ? 'bg-primary text-primary-foreground border-primary' : 'hover:bg-accent border-input';
+        const activeClass = isActive ? 'border-[var(--color-600)] text-[var(--color-600)]' : 'hover:bg-accent border-input';
 
         let dotColor = `hsl(${s.dark.bg})`;
 
@@ -439,27 +439,27 @@ window.setBorderRadius = function (radius) {
 
 function renderBorderRadius() {
     // Reset all buttons
-    dom.btnRadiusNone.classList.remove('bg-primary', 'text-primary-foreground', 'border-primary');
+    dom.btnRadiusNone.classList.remove('border-[var(--color-600)]', 'text-[var(--color-600)]');
     dom.btnRadiusNone.classList.add('hover:bg-accent');
-    dom.btnRadiusDefault.classList.remove('bg-primary', 'text-primary-foreground', 'border-primary');
+    dom.btnRadiusDefault.classList.remove('border-[var(--color-600)]', 'text-[var(--color-600)]');
     dom.btnRadiusDefault.classList.add('hover:bg-accent');
-    dom.btnRadiusRounded.classList.remove('bg-primary', 'text-primary-foreground', 'border-primary');
+    dom.btnRadiusRounded.classList.remove('border-[var(--color-600)]', 'text-[var(--color-600)]');
     dom.btnRadiusRounded.classList.add('hover:bg-accent');
-    dom.btnRadiusFull.classList.remove('bg-primary', 'text-primary-foreground', 'border-primary');
+    dom.btnRadiusFull.classList.remove('border-[var(--color-600)]', 'text-[var(--color-600)]');
     dom.btnRadiusFull.classList.add('hover:bg-accent');
 
     // Activate selected button
     if (state.borderRadius === 'none') {
-        dom.btnRadiusNone.classList.add('bg-primary', 'text-primary-foreground', 'border-primary');
+        dom.btnRadiusNone.classList.add('border-[var(--color-600)]', 'text-[var(--color-600)]');
         dom.btnRadiusNone.classList.remove('hover:bg-accent');
     } else if (state.borderRadius === 'default') {
-        dom.btnRadiusDefault.classList.add('bg-primary', 'text-primary-foreground', 'border-primary');
+        dom.btnRadiusDefault.classList.add('border-[var(--color-600)]', 'text-[var(--color-600)]');
         dom.btnRadiusDefault.classList.remove('hover:bg-accent');
     } else if (state.borderRadius === 'rounded') {
-        dom.btnRadiusRounded.classList.add('bg-primary', 'text-primary-foreground', 'border-primary');
+        dom.btnRadiusRounded.classList.add('border-[var(--color-600)]', 'text-[var(--color-600)]');
         dom.btnRadiusRounded.classList.remove('hover:bg-accent');
     } else if (state.borderRadius === 'full') {
-        dom.btnRadiusFull.classList.add('bg-primary', 'text-primary-foreground', 'border-primary');
+        dom.btnRadiusFull.classList.add('border-[var(--color-600)]', 'text-[var(--color-600)]');
         dom.btnRadiusFull.classList.remove('hover:bg-accent');
     }
 }
@@ -476,7 +476,7 @@ function renderButtonStyle() {
     ['flat', 'gradient', 'bevel'].forEach(s => {
         const btn = document.getElementById(`btn-style-${s}`);
         if (btn) {
-            btn.classList.remove('bg-primary', 'text-primary-foreground', 'border-primary');
+            btn.classList.remove('border-[var(--color-600)]', 'text-[var(--color-600)]');
             btn.classList.add('hover:bg-accent');
         }
     });
@@ -484,7 +484,7 @@ function renderButtonStyle() {
     // Active
     const activeBtn = document.getElementById(`btn-style-${state.buttonStyle}`);
     if (activeBtn) {
-        activeBtn.classList.add('bg-primary', 'text-primary-foreground', 'border-primary');
+        activeBtn.classList.add('border-[var(--color-600)]', 'text-[var(--color-600)]');
         activeBtn.classList.remove('hover:bg-accent');
     }
 }
@@ -501,7 +501,7 @@ function renderShadows() {
     ['none', 'default', 'large'].forEach(s => {
         const btn = document.getElementById(`btn-shadow-${s}`);
         if (btn) {
-            btn.classList.remove('bg-primary', 'text-primary-foreground', 'border-primary');
+            btn.classList.remove('border-[var(--color-600)]', 'text-[var(--color-600)]');
             btn.classList.add('hover:bg-accent');
         }
     });
@@ -509,7 +509,7 @@ function renderShadows() {
     // Active
     const activeBtn = document.getElementById(`btn-shadow-${state.shadows}`);
     if (activeBtn) {
-        activeBtn.classList.add('bg-primary', 'text-primary-foreground', 'border-primary');
+        activeBtn.classList.add('border-[var(--color-600)]', 'text-[var(--color-600)]');
         activeBtn.classList.remove('hover:bg-accent');
     }
 }
