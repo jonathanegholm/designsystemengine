@@ -258,7 +258,7 @@
                                 <input type="email" placeholder="name@example.com"
                                     class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" />
                                 <button
-                                    class="inline-flex w-full items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-[var(--color-600)] text-white hover:bg-[var(--color-700)] h-9 px-4 py-2 shadow">
+                                    class="inline-flex w-full items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-[var(--color-600)] text-[var(--color-600-contrast)] hover:bg-[var(--color-700)] h-9 px-4 py-2 shadow">
                                     Sign In with Email
                                 </button>
                             </div>
@@ -342,7 +342,7 @@
                             </div>
                             <div class="flex justify-end">
                                 <div
-                                    class="bg-[var(--color-600)] text-white text-xs px-3 py-2 rounded-lg rounded-tr-none max-w-[80%] shadow-sm">
+                                    class="bg-[var(--color-600)] text-[var(--color-600-contrast)] text-xs px-3 py-2 rounded-lg rounded-tr-none max-w-[80%] shadow-sm">
                                     Just exported them. Check the dashboard!
                                 </div>
                             </div>
@@ -352,7 +352,7 @@
                                 <input type="text" placeholder="Type a message..."
                                     class="flex-1 bg-muted/50 border-0 rounded-full text-xs px-3 h-8 focus:ring-1 focus:ring-[var(--color-400)] outline-none">
                                 <button
-                                    class="w-8 h-8 rounded-full bg-[var(--color-600)] flex items-center justify-center text-white hover:opacity-90 transition-opacity">
+                                    class="w-8 h-8 rounded-full bg-[var(--color-600)] flex items-center justify-center text-[var(--color-600-contrast)] hover:opacity-90 transition-opacity">
                                     <i data-lucide="send" class="w-3.5 h-3.5"></i>
                                 </button>
                             </div>
@@ -416,7 +416,8 @@
                             <span class="text-muted-foreground p-2">30</span>
                             <span class="p-2 hover:bg-accent rounded cursor-pointer">1</span>
                             <span class="p-2 hover:bg-accent rounded cursor-pointer">2</span>
-                            <span class="p-2 bg-[var(--color-600)] text-white rounded font-medium shadow-sm">3</span>
+                            <span
+                                class="p-2 bg-[var(--color-600)] text-[var(--color-600-contrast)] rounded font-medium shadow-sm">3</span>
                             <span class="p-2 hover:bg-accent rounded cursor-pointer">4</span>
                             <span class="p-2 hover:bg-accent rounded cursor-pointer">5</span>
                             <span class="p-2 hover:bg-accent rounded cursor-pointer">6</span>
