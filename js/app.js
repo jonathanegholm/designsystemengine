@@ -277,7 +277,7 @@ function renderScale() {
                 <i data-lucide="copy" class="w-4 h-4 ${iconClass}"></i>
              </div>
              <span class="text-[10px] font-mono font-bold leading-tight ${textClass}">${stop.name}</span>
-             <span class="text-[9px] font-mono opacity-60 leading-tight ${textClass}">${ratio.toFixed(1)}:1</span>
+             <span class="text-[9px] font-mono opacity-60 leading-tight ${textClass} hidden md:block">${ratio.toFixed(1)}:1</span>
         </div>`;
     }).join('');
     lucide.createIcons();
