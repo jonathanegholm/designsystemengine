@@ -607,4 +607,112 @@ setShadows('default');
 window.setFontFamily('Inter, sans-serif');
 updateUI();
 
-setTimeout(renderChart, 100); 
+// --- CANDLESTICK CHART ---
+function renderCandlestickChart() {
+    const container = document.getElementById('candlestick-container');
+    if (!container) return;
+
+    // Mock OHLC Data
+    const data = [
+        { o: 150, h: 160, l: 145, c: 155 },
+        { o: 155, h: 158, l: 150, c: 152 },
+        { o: 152, h: 165, l: 150, c: 162 },
+        { o: 162, h: 168, l: 158, c: 160 },
+        { o: 160, h: 175, l: 155, c: 172 },
+        { o: 172, h: 172, l: 165, c: 168 },
+        { o: 168, h: 180, l: 166, c: 178 },
+        { o: 178, h: 185, l: 175, c: 182 },
+        { o: 182, h: 182, l: 170, c: 175 },
+        { o: 175, h: 190, l: 172, c: 188 },
+        { o: 188, h: 195, l: 185, c: 192 },
+        { o: 192, h: 192, l: 180, c: 185 }
+    ];
+
+    const w = container.offsetWidth;
+    const h = container.offsetHeight;
+    const padding = 20;
+
+    // Scales
+    const minPrice = Math.min(...data.map(d => d.l));
+    const maxPrice = Math.max(...data.map(d => d.h));
+    const priceRange = maxPrice - minPrice;
+
+    const candleWidth = (w - (padding * 2)) / data.length * 0.6;
+    const gap = (w - (padding * 2)) / data.length;
+
+    let svgContent = `<svg width="100%" height="100%" viewBox="0 0 ${w} ${h}" class="overflow-visible">`;
+
+    // Grid Lines (Optional, purely aesthetic)
+    svgContent += `<line x1="0" y1="${h / 4}" x2="${w}" y2="${h / 4}" stroke="currentColor" stroke-opacity="0.05" />`;
+    svgContent += `<line x1="0" y1="${h / 2}" x2="${w}" y2="${h / 2}" stroke="currentColor" stroke-opacity="0.05" />`;
+    svgContent += `<line x1="0" y1="${h * 0.75}" x2="${w}" y2="${h * 0.75}" stroke="currentColor" stroke-opacity="0.05" />`;
+
+    data.forEach((d, i) => {
+        const x = padding + (i * gap) + (gap - candleWidth) / 2;
+        const yHigh = padding + ((maxPrice - d.h) / priceRange) * (h - padding * 2);
+        const yLow = padding + ((maxPrice - d.l) / priceRange) * (h - padding * 2);
+        const yOpen = padding + ((maxPrice - d.o) / priceRange) * (h - padding * 2);
+        const yClose = padding + ((maxPrice - d.c) / priceRange) * (h - padding * 2);
+
+        const isBullish = d.c > d.o;
+        // Bullish: Green (Emerald 500), Bearish: Red (Rose 500)
+        // Using Tailwind colors directly for SVG
+        const color = isBullish ? '#10b981' : '#f43f5e';
+
+        // Wick
+        svgContent += `<line x1="${x + candleWidth / 2}" y1="${yHigh}" x2="${x + candleWidth / 2}" y2="${yLow}" stroke="${color}" stroke-width="1.5" />`;
+
+        // Body
+        // Rect height must be positive
+        const bodyY = Math.min(yOpen, yClose);
+        const bodyHeight = Math.abs(yClose - yOpen);
+
+        svgContent += `<rect x="${x}" y="${bodyY}" width="${candleWidth}" height="${Math.max(bodyHeight, 1)}" fill="${color}" rx="1" class="candle" data-o="${d.o}" data-h="${d.h}" data-l="${d.l}" data-c="${d.c}" />`;
+    });
+
+    svgContent += `</svg>`;
+    svgContent += '<div id="candlestick-tooltip" class="chart-tooltip"></div>';
+
+    container.innerHTML = svgContent;
+
+    // Tooltips
+    const candles = container.querySelectorAll('.candle');
+    const tooltip = document.getElementById('candlestick-tooltip');
+
+    candles.forEach(candle => {
+        candle.addEventListener('mouseenter', (e) => {
+            const o = e.target.getAttribute('data-o');
+            const h = e.target.getAttribute('data-h');
+            const l = e.target.getAttribute('data-l');
+            const c = e.target.getAttribute('data-c');
+            const isBull = parseFloat(c) > parseFloat(o);
+
+            tooltip.innerHTML = `
+                <div class="font-bold border-b pb-1 mb-1 ${isBull ? 'text-emerald-600' : 'text-rose-600'}">${isBull ? 'Bullish' : 'Bearish'}</div>
+                <div class="grid grid-cols-2 gap-x-3 gap-y-0.5 text-[10px]">
+                    <span class="opacity-70">Open</span> <span class="font-mono text-right">${o}</span>
+                    <span class="opacity-70">High</span> <span class="font-mono text-right">${h}</span>
+                    <span class="opacity-70">Low</span> <span class="font-mono text-right">${l}</span>
+                    <span class="opacity-70">Close</span> <span class="font-mono text-right">${c}</span>
+                </div>
+            `;
+            tooltip.style.opacity = '1';
+
+            const r = e.target.getBoundingClientRect();
+            const cont = container.getBoundingClientRect();
+            tooltip.style.left = `${(r.left - cont.left) + candleWidth + 5}px`;
+            tooltip.style.top = `${(r.top - cont.top) - 20}px`;
+        });
+
+        candle.addEventListener('mouseleave', () => {
+            tooltip.style.opacity = '0';
+        });
+    });
+}
+window.addEventListener('resize', renderCandlestickChart);
+
+// Initialize everything
+setTimeout(() => {
+    renderChart();
+    renderCandlestickChart();
+}, 100); 
