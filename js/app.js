@@ -758,9 +758,17 @@ function initNavigation() {
 }
 
 // --- HIGHCHARTS STOCK ---
+// --- HIGHCHARTS STOCK ---
 function initStockChart() {
-    // Generate some random stock data
-    const data = (function () {
+    // Re-run icons for the new buttons
+    lucide.createIcons();
+
+    const btnSimple = document.getElementById('btn-mode-simple');
+    const btnAdvanced = document.getElementById('btn-mode-advanced');
+    window.chartMode = 'simple'; // Default
+
+    // Generate random stock data (OHLC)
+    const ohlcData = (function () {
         const arr = [];
         const startTime = Date.now() - 365 * 24 * 60 * 60 * 1000;
         let price = 150;
@@ -775,6 +783,9 @@ function initStockChart() {
         }
         return arr;
     })();
+
+    // Simple Line Data (Date, Close)
+    const lineData = ohlcData.map(d => [d[0], d[4]]);
 
     Highcharts.stockChart('stock-chart-container', {
         chart: {
@@ -797,41 +808,96 @@ function initStockChart() {
         title: { text: '' },
         yAxis: [{
             labels: { align: 'left' },
-            height: '80%',
+            height: '100%',
             resize: { enabled: true }
-        }, {
-            labels: { align: 'left' },
-            top: '80%',
-            height: '20%',
-            offset: 0
         }],
         series: [{
-            type: 'candlestick',
+            type: 'area', // Simple default
             name: 'AAPL',
-            data: data,
-            color: '#f43f5e', // Red (Drop)
-            lineColor: '#f43f5e',
-            upColor: '#10b981', // Green (Rise)
-            upLineColor: '#10b981'
+            data: lineData,
+            threshold: null,
+            fillColor: {
+                linearGradient: {
+                    x1: 0,
+                    y1: 0,
+                    x2: 0,
+                    y2: 1
+                },
+                stops: [
+                    [0, Highcharts.getOptions().colors[0]],
+                    [1, Highcharts.color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+                ]
+            }
         }],
         stockTools: {
             gui: {
-                enabled: true,
-                buttons: ['indicators', 'separator', 'simpleShapes', 'lines', 'crookedLines', 'measure', 'advanced', 'toggleAnnotations', 'separator', 'verticalLabels', 'flags', 'separator', 'zoomChange', 'fullScreen'],
+                enabled: false // Hidden by default for simple mode
             }
         },
         navigation: {
-            bindingsClassName: 'tools-container' // internal
-        },
-        plotOptions: {
-            candlestick: {
-                color: '#f43f5e',
-                upColor: '#10b981'
-            }
+            bindingsClassName: 'tools-container'
         }
     }, function (chart) {
         window.stockChart = chart;
         updateChartTheme();
+    });
+
+    // Toggle Logic
+    const updateModeUI = () => {
+        const activeClass = 'bg-background text-foreground shadow-sm'.split(' ');
+        const inactiveClass = 'text-muted-foreground hover:text-foreground'.split(' ');
+
+        if (window.chartMode === 'simple') {
+            btnSimple.classList.add(...activeClass);
+            btnSimple.classList.remove(...inactiveClass);
+            btnAdvanced.classList.add(...inactiveClass);
+            btnAdvanced.classList.remove(...activeClass);
+
+            // Switch to Simple Chart
+            window.stockChart.update({
+                stockTools: { gui: { enabled: false } }, // Hide GUI
+                yAxis: [{ height: '100%', top: '0%' }, { height: '0%', top: '100%', visible: false }], // Single axis
+                series: [{
+                    type: 'area',
+                    data: lineData,
+                    color: null, // Will be set by theme
+                    lineColor: null,
+                    upColor: null,
+                    upLineColor: null
+                }]
+            });
+        } else {
+            btnAdvanced.classList.add(...activeClass);
+            btnAdvanced.classList.remove(...inactiveClass);
+            btnSimple.classList.add(...inactiveClass);
+            btnSimple.classList.remove(...activeClass);
+
+            // Switch to Advanced Chart
+            window.stockChart.update({
+                stockTools: { gui: { enabled: true } }, // Show GUI
+                yAxis: [{ height: '80%', top: '0%' }, { height: '20%', top: '80%', visible: true }], // Dual axis for volume/MACD if needed
+                series: [{
+                    type: 'candlestick',
+                    data: ohlcData,
+                    // Colors will be set by theme
+                }]
+            });
+        }
+        updateChartTheme(); // Re-apply theme colors
+    };
+
+    btnSimple.addEventListener('click', () => {
+        if (window.chartMode !== 'simple') {
+            window.chartMode = 'simple';
+            updateModeUI();
+        }
+    });
+
+    btnAdvanced.addEventListener('click', () => {
+        if (window.chartMode !== 'advanced') {
+            window.chartMode = 'advanced';
+            updateModeUI();
+        }
     });
 }
 
@@ -840,17 +906,25 @@ function updateChartTheme() {
     const isDark = root.classList.contains('dark');
     const color600 = getComputedStyle(root).getPropertyValue('--color-600').trim();
     const color100 = getComputedStyle(root).getPropertyValue('--color-100').trim();
-    const color900 = getComputedStyle(root).getPropertyValue('--color-900').trim();
     const fg = isDark ? '#ffffff' : '#000000';
     const muted = isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)';
     const grid = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
 
+    // Gradient for Simple Mode
+    const gradient = {
+        linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+        stops: [
+            [0, Highcharts.color(color600).setOpacity(0.5).get('rgba')],
+            [1, Highcharts.color(color600).setOpacity(0).get('rgba')]
+        ]
+    };
+
+    const isSimple = window.chartMode === 'simple';
+
     window.stockChart.update({
         chart: {
             backgroundColor: 'transparent',
-            style: {
-                fontFamily: state.fontFamily
-            }
+            style: { fontFamily: state.fontFamily }
         },
         xAxis: {
             gridLineColor: grid,
@@ -862,6 +936,7 @@ function updateChartTheme() {
             gridLineColor: grid,
             labels: { style: { color: muted } }
         }, {
+            // Second axis (if present)
             gridLineColor: grid,
             labels: { style: { color: muted } }
         }],
@@ -885,6 +960,17 @@ function updateChartTheme() {
             maskFill: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
             series: { color: color600, lineColor: color600 },
             xAxis: { labels: { style: { color: muted } } }
-        }
-    });
+        },
+        // Specific Series Updates based on Mode
+        series: [{
+            color: isSimple ? color600 : '#f43f5e', // Use config color for simple, Red for candle drop
+            lineColor: isSimple ? color600 : '#f43f5e',
+            fillColor: isSimple ? gradient : undefined,
+            upColor: '#10b981',
+            upLineColor: '#10b981'
+        }]
+    }, false); // Set redraw to false to batch updates if needed, but here simple update is fine
+
+    // Force redraw to ensure gradient applies
+    window.stockChart.redraw();
 }
