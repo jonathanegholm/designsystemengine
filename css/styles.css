@@ -305,3 +305,81 @@ body[data-shadows="large"] .shadow-sm,
 body[data-shadows="large"] .shadow {
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
 }
+
+/* --- Highcharts Stock GUI Dark Mode Overrides --- */
+.dark .highcharts-stocktools-wrapper {
+    background-color: hsl(var(--card)) !important;
+    border: 1px solid hsl(var(--border)) !important;
+    color: hsl(var(--foreground)) !important;
+}
+
+.dark .highcharts-stocktools-toolbar li {
+    background-color: transparent !important;
+    border-color: transparent !important;
+    color: hsl(var(--foreground)) !important;
+}
+
+.dark .highcharts-stocktools-toolbar li:hover {
+    background-color: hsl(var(--accent)) !important;
+}
+
+.dark .highcharts-stocktools-toolbar li.highcharts-active {
+    background-color: hsl(var(--muted)) !important;
+    color: hsl(var(--foreground)) !important;
+}
+
+.dark .highcharts-stocktools-toolbar .highcharts-menu-item {
+    background-color: hsl(var(--card)) !important;
+    color: hsl(var(--foreground)) !important;
+}
+
+.dark .highcharts-menu-item:hover {
+    background-color: hsl(var(--accent)) !important;
+    color: hsl(var(--accent-foreground)) !important;
+}
+
+.dark .highcharts-popup {
+    background-color: hsl(var(--card)) !important;
+    color: hsl(var(--foreground)) !important;
+    border: 1px solid hsl(var(--border)) !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5) !important;
+}
+
+.dark .highcharts-popup-wrapper .highcharts-tab-item {
+    background-color: transparent !important;
+    color: hsl(var(--muted-foreground)) !important;
+    border-bottom: 2px solid transparent !important;
+}
+
+.dark .highcharts-popup-wrapper .highcharts-tab-item.highcharts-active {
+    background-color: transparent !important;
+    color: hsl(var(--foreground)) !important;
+    border-bottom: 2px solid hsl(var(--primary)) !important;
+}
+
+.dark .highcharts-popup input,
+.dark .highcharts-popup select {
+    background-color: hsl(var(--input)) !important;
+    color: hsl(var(--foreground)) !important;
+    border: 1px solid hsl(var(--border)) !important;
+    border-radius: 4px;
+}
+
+.dark .highcharts-popup button {
+    background-color: hsl(var(--primary)) !important;
+    color: hsl(var(--primary-foreground)) !important;
+    border: none !important;
+    border-radius: 4px;
+}
+
+.dark .highcharts-popup-wrapper .highcharts-annotation-edit-button,
+.dark .highcharts-popup-wrapper .highcharts-annotation-remove-button {
+    background-color: hsl(var(--destructive)) !important;
+    color: hsl(var(--destructive-foreground)) !important;
+}
+
+.dark .highcharts-stocktools-toolbar li>span.highcharts-menu-item-btn {
+    background-image: none !important;
+    /* Remove default icons if relying on SVGs, or invert filter */
+    filter: invert(1);
+}

@@ -214,6 +214,7 @@ function updateUI() {
 
     renderScale();
     renderChart();
+    updateChartTheme();
     window.dispatchEvent(new CustomEvent('colorChange', { detail: { hue: state.hue, chroma: state.chroma } }));
 }
 
@@ -374,14 +375,14 @@ window.setSurfaceLevel = function (level) {
 
 function renderSurfaceLevels() {
     if (state.surfaceLevel === 'flat') {
-        dom.btnLevelFlat.classList.add('border-[var(--color-600)]', 'text-[var(--color-600)]');
+        dom.btnLevelFlat.classList.add('border-[var(--color-600)]', 'text-[var(--color-600)]', 'border-2');
         dom.btnLevelFlat.classList.remove('hover:bg-accent');
-        dom.btnLevelRaised.classList.remove('border-[var(--color-600)]', 'text-[var(--color-600)]');
+        dom.btnLevelRaised.classList.remove('border-[var(--color-600)]', 'text-[var(--color-600)]', 'border-2');
         dom.btnLevelRaised.classList.add('hover:bg-accent');
     } else {
-        dom.btnLevelRaised.classList.add('border-[var(--color-600)]', 'text-[var(--color-600)]');
+        dom.btnLevelRaised.classList.add('border-[var(--color-600)]', 'text-[var(--color-600)]', 'border-2');
         dom.btnLevelRaised.classList.remove('hover:bg-accent');
-        dom.btnLevelFlat.classList.remove('border-[var(--color-600)]', 'text-[var(--color-600)]');
+        dom.btnLevelFlat.classList.remove('border-[var(--color-600)]', 'text-[var(--color-600)]', 'border-2');
         dom.btnLevelFlat.classList.add('hover:bg-accent');
     }
 }
@@ -389,7 +390,7 @@ function renderSurfaceLevels() {
 function renderSurfaces() {
     dom.surfaceContainer.innerHTML = SURFACES.map(s => {
         const isActive = currentSurface.name === s.name;
-        const activeClass = isActive ? 'border-[var(--color-600)] text-[var(--color-600)]' : 'hover:bg-accent border-input';
+        const activeClass = isActive ? 'border-[var(--color-600)] text-[var(--color-600)] border-2' : 'hover:bg-accent border-input';
 
         let dotColor = `hsl(${s.dark.bg})`;
 
@@ -440,27 +441,27 @@ window.setBorderRadius = function (radius) {
 
 function renderBorderRadius() {
     // Reset all buttons
-    dom.btnRadiusNone.classList.remove('border-[var(--color-600)]', 'text-[var(--color-600)]');
+    dom.btnRadiusNone.classList.remove('border-[var(--color-600)]', 'text-[var(--color-600)]', 'border-2');
     dom.btnRadiusNone.classList.add('hover:bg-accent');
-    dom.btnRadiusDefault.classList.remove('border-[var(--color-600)]', 'text-[var(--color-600)]');
+    dom.btnRadiusDefault.classList.remove('border-[var(--color-600)]', 'text-[var(--color-600)]', 'border-2');
     dom.btnRadiusDefault.classList.add('hover:bg-accent');
-    dom.btnRadiusRounded.classList.remove('border-[var(--color-600)]', 'text-[var(--color-600)]');
+    dom.btnRadiusRounded.classList.remove('border-[var(--color-600)]', 'text-[var(--color-600)]', 'border-2');
     dom.btnRadiusRounded.classList.add('hover:bg-accent');
-    dom.btnRadiusFull.classList.remove('border-[var(--color-600)]', 'text-[var(--color-600)]');
+    dom.btnRadiusFull.classList.remove('border-[var(--color-600)]', 'text-[var(--color-600)]', 'border-2');
     dom.btnRadiusFull.classList.add('hover:bg-accent');
 
     // Activate selected button
     if (state.borderRadius === 'none') {
-        dom.btnRadiusNone.classList.add('border-[var(--color-600)]', 'text-[var(--color-600)]');
+        dom.btnRadiusNone.classList.add('border-[var(--color-600)]', 'text-[var(--color-600)]', 'border-2');
         dom.btnRadiusNone.classList.remove('hover:bg-accent');
     } else if (state.borderRadius === 'default') {
-        dom.btnRadiusDefault.classList.add('border-[var(--color-600)]', 'text-[var(--color-600)]');
+        dom.btnRadiusDefault.classList.add('border-[var(--color-600)]', 'text-[var(--color-600)]', 'border-2');
         dom.btnRadiusDefault.classList.remove('hover:bg-accent');
     } else if (state.borderRadius === 'rounded') {
-        dom.btnRadiusRounded.classList.add('border-[var(--color-600)]', 'text-[var(--color-600)]');
+        dom.btnRadiusRounded.classList.add('border-[var(--color-600)]', 'text-[var(--color-600)]', 'border-2');
         dom.btnRadiusRounded.classList.remove('hover:bg-accent');
     } else if (state.borderRadius === 'full') {
-        dom.btnRadiusFull.classList.add('border-[var(--color-600)]', 'text-[var(--color-600)]');
+        dom.btnRadiusFull.classList.add('border-[var(--color-600)]', 'text-[var(--color-600)]', 'border-2');
         dom.btnRadiusFull.classList.remove('hover:bg-accent');
     }
 }
@@ -477,15 +478,16 @@ function renderButtonStyle() {
     ['flat', 'gradient', 'bevel'].forEach(s => {
         const btn = document.getElementById(`btn-style-${s}`);
         if (btn) {
-            btn.classList.remove('border-[var(--color-600)]', 'text-[var(--color-600)]');
+            btn.classList.remove('border-[var(--color-600)]', 'text-[var(--color-600)]', 'border-2');
             btn.classList.add('hover:bg-accent');
         }
     });
 
     // Active
+    // Active
     const activeBtn = document.getElementById(`btn-style-${state.buttonStyle}`);
     if (activeBtn) {
-        activeBtn.classList.add('border-[var(--color-600)]', 'text-[var(--color-600)]');
+        activeBtn.classList.add('border-[var(--color-600)]', 'text-[var(--color-600)]', 'border-2');
         activeBtn.classList.remove('hover:bg-accent');
     }
 }
@@ -502,15 +504,16 @@ function renderShadows() {
     ['none', 'default', 'large'].forEach(s => {
         const btn = document.getElementById(`btn-shadow-${s}`);
         if (btn) {
-            btn.classList.remove('border-[var(--color-600)]', 'text-[var(--color-600)]');
+            btn.classList.remove('border-[var(--color-600)]', 'text-[var(--color-600)]', 'border-2');
             btn.classList.add('hover:bg-accent');
         }
     });
 
     // Active
+    // Active
     const activeBtn = document.getElementById(`btn-shadow-${state.shadows}`);
     if (activeBtn) {
-        activeBtn.classList.add('border-[var(--color-600)]', 'text-[var(--color-600)]');
+        activeBtn.classList.add('border-[var(--color-600)]', 'text-[var(--color-600)]', 'border-2');
         activeBtn.classList.remove('hover:bg-accent');
     }
 }
@@ -716,4 +719,172 @@ window.addEventListener('resize', renderCandlestickChart);
 setTimeout(() => {
     renderChart();
     renderCandlestickChart();
-}, 100); 
+    initNavigation();
+    initStockChart();
+}, 100);
+
+// --- NAVIGATION ---
+function initNavigation() {
+    const navScale = document.getElementById('nav-scale');
+    const navExample = document.getElementById('nav-example');
+    const viewScale = document.getElementById('view-scale');
+    const viewExample = document.getElementById('view-example');
+
+    function switchTab(view) {
+        if (view === 'scale') {
+            viewScale.classList.remove('hidden');
+            viewExample.classList.add('hidden');
+            navScale.classList.remove('text-muted-foreground', 'hover:bg-transparent');
+            navScale.classList.add('bg-muted', 'text-foreground');
+            navExample.classList.add('text-muted-foreground', 'hover:bg-transparent');
+            navExample.classList.remove('bg-muted', 'text-foreground');
+        } else {
+            viewScale.classList.add('hidden');
+            viewExample.classList.remove('hidden');
+            navExample.classList.remove('text-muted-foreground', 'hover:bg-transparent');
+            navExample.classList.add('bg-muted', 'text-foreground');
+            navScale.classList.add('text-muted-foreground', 'hover:bg-transparent');
+            navScale.classList.remove('bg-muted', 'text-foreground');
+
+            // Resize chart when it becomes visible
+            if (window.stockChart) {
+                setTimeout(() => window.stockChart.reflow(), 10);
+            }
+        }
+    }
+
+    navScale.addEventListener('click', () => switchTab('scale'));
+    navExample.addEventListener('click', () => switchTab('example'));
+}
+
+// --- HIGHCHARTS STOCK ---
+function initStockChart() {
+    // Generate some random stock data
+    const data = (function () {
+        const arr = [];
+        const startTime = Date.now() - 365 * 24 * 60 * 60 * 1000;
+        let price = 150;
+        for (let i = 0; i < 365; i++) {
+            const date = startTime + i * 24 * 60 * 60 * 1000;
+            const open = price;
+            const close = price + (Math.random() * 10 - 5);
+            const high = Math.max(open, close) + Math.random() * 5;
+            const low = Math.min(open, close) - Math.random() * 5;
+            arr.push([date, open, high, low, close]);
+            price = close;
+        }
+        return arr;
+    })();
+
+    Highcharts.stockChart('stock-chart-container', {
+        chart: {
+            backgroundColor: 'transparent',
+            style: { fontFamily: 'inherit' }
+        },
+        rangeSelector: {
+            selected: 1,
+            inputEnabled: false,
+            buttonTheme: {
+                fill: 'none',
+                stroke: 'none',
+                'stroke-width': 0,
+                r: 4,
+                style: { fontWeight: '500' },
+                states: { hover: {}, select: { style: { fontWeight: 'bold' } } }
+            }
+        },
+        credits: { enabled: false },
+        title: { text: '' },
+        yAxis: [{
+            labels: { align: 'left' },
+            height: '80%',
+            resize: { enabled: true }
+        }, {
+            labels: { align: 'left' },
+            top: '80%',
+            height: '20%',
+            offset: 0
+        }],
+        series: [{
+            type: 'candlestick',
+            name: 'AAPL',
+            data: data,
+            color: '#f43f5e', // Red (Drop)
+            lineColor: '#f43f5e',
+            upColor: '#10b981', // Green (Rise)
+            upLineColor: '#10b981'
+        }],
+        stockTools: {
+            gui: {
+                enabled: true,
+                buttons: ['indicators', 'separator', 'simpleShapes', 'lines', 'crookedLines', 'measure', 'advanced', 'toggleAnnotations', 'separator', 'verticalLabels', 'flags', 'separator', 'zoomChange', 'fullScreen'],
+            }
+        },
+        navigation: {
+            bindingsClassName: 'tools-container' // internal
+        },
+        plotOptions: {
+            candlestick: {
+                color: '#f43f5e',
+                upColor: '#10b981'
+            }
+        }
+    }, function (chart) {
+        window.stockChart = chart;
+        updateChartTheme();
+    });
+}
+
+function updateChartTheme() {
+    if (!window.stockChart) return;
+    const isDark = root.classList.contains('dark');
+    const color600 = getComputedStyle(root).getPropertyValue('--color-600').trim();
+    const color100 = getComputedStyle(root).getPropertyValue('--color-100').trim();
+    const color900 = getComputedStyle(root).getPropertyValue('--color-900').trim();
+    const fg = isDark ? '#ffffff' : '#000000';
+    const muted = isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)';
+    const grid = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+
+    window.stockChart.update({
+        chart: {
+            backgroundColor: 'transparent',
+            style: {
+                fontFamily: state.fontFamily
+            }
+        },
+        xAxis: {
+            gridLineColor: grid,
+            lineColor: muted,
+            tickColor: muted,
+            labels: { style: { color: muted } }
+        },
+        yAxis: [{
+            gridLineColor: grid,
+            labels: { style: { color: muted } }
+        }, {
+            gridLineColor: grid,
+            labels: { style: { color: muted } }
+        }],
+        rangeSelector: {
+            buttonTheme: {
+                fill: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+                style: { color: fg },
+                states: {
+                    select: {
+                        fill: color600,
+                        style: { color: '#ffffff' }
+                    },
+                    hover: {
+                        fill: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
+                    }
+                }
+            },
+            labelStyle: { color: muted }
+        },
+        navigator: {
+            maskFill: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+            series: { color: color600, lineColor: color600 },
+            xAxis: { labels: { style: { color: muted } } }
+        }
+    });
+}
