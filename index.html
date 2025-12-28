@@ -636,50 +636,8 @@
 
                 <!-- Stock Chart -->
                 <div class="overflow-hidden min-h-[600px] relative">
-                    <!-- Chart Mode Toggle (Overlay) -->
-                    <div class="absolute top-2 right-2 z-20 flex bg-muted p-1 rounded-lg">
-                        <button id="btn-mode-simple"
-                            class="flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium bg-background text-foreground shadow-sm transition-all">
-                            <i data-lucide="activity" class="w-3.5 h-3.5"></i> Simple
-                        </button>
-                        <button id="btn-mode-advanced"
-                            class="flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium text-muted-foreground hover:text-foreground transition-all">
-                            <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i> Advanced
-                        </button>
-                    </div>
-                    <!-- Simple Chart Container (Custom SVG - Recharts Style) -->
-                    <div id="simple-chart-wrapper" class="relative w-full h-[300px]">
-                        <!-- Range Selector -->
-                        <div class="absolute top-0 right-0 z-10 flex gap-1">
-                            <button
-                                class="simple-range-btn px-2 py-1 text-xs font-medium rounded hover:bg-muted transition-colors text-muted-foreground"
-                                data-range="1M">1M</button>
-                            <button
-                                class="simple-range-btn px-2 py-1 text-xs font-medium rounded hover:bg-muted transition-colors text-muted-foreground"
-                                data-range="3M">3M</button>
-                            <button
-                                class="simple-range-btn px-2 py-1 text-xs font-medium rounded hover:bg-muted transition-colors text-muted-foreground"
-                                data-range="6M">6M</button>
-                            <button
-                                class="simple-range-btn px-2 py-1 text-xs font-medium rounded hover:bg-muted transition-colors text-muted-foreground"
-                                data-range="YTD">YTD</button>
-                            <button
-                                class="simple-range-btn px-2 py-1 text-xs font-medium rounded bg-muted text-foreground transition-colors"
-                                data-range="1Y">1Y</button>
-                            <button
-                                class="simple-range-btn px-2 py-1 text-xs font-medium rounded hover:bg-muted transition-colors text-muted-foreground"
-                                data-range="ALL">All</button>
-                        </div>
-                        <div id="simple-chart-container" class="w-full h-full"></div>
-                        <div id="simple-chart-tooltip"
-                            class="absolute pointer-events-none hidden bg-card border border-border shadow-lg rounded-lg p-2 text-xs z-50">
-                            <div class="font-bold text-foreground" id="simple-tooltip-price"></div>
-                            <div class="text-muted-foreground text-[10px]" id="simple-tooltip-date"></div>
-                        </div>
-                    </div>
-
                     <!-- Advanced Stock Chart (Highcharts) -->
-                    <div id="stock-chart-container" class="w-full h-[600px] hidden"></div>
+                    <div id="stock-chart-container" class="w-full h-[600px]"></div>
                 </div>
             </div>
 
