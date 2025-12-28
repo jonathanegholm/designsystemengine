@@ -790,7 +790,9 @@ function initStockChart() {
     Highcharts.stockChart('stock-chart-container', {
         chart: {
             backgroundColor: 'transparent',
-            style: { fontFamily: 'inherit' }
+            style: { fontFamily: 'inherit' },
+            spacingTop: 0,
+            spacingBottom: 0,
         },
         rangeSelector: {
             selected: 1,
@@ -804,15 +806,23 @@ function initStockChart() {
                 states: { hover: {}, select: { style: { fontWeight: 'bold' } } }
             }
         },
+        navigator: { enabled: false }, // Hidden by default for simple
+        scrollbar: { enabled: false }, // Hidden by default for simple
         credits: { enabled: false },
         title: { text: '' },
         yAxis: [{
             labels: { align: 'left' },
             height: '100%',
-            resize: { enabled: true }
+            resize: { enabled: true },
+            gridLineWidth: 1, // Horizontal grid lines
+            lineWidth: 0 // No axis line
         }],
+        xAxis: {
+            lineColor: 'transparent',
+            tickLength: 0
+        },
         series: [{
-            type: 'area', // Simple default
+            type: 'areaspline', // Smooth curve for shadcn style
             name: 'AAPL',
             data: lineData,
             threshold: null,
@@ -827,6 +837,12 @@ function initStockChart() {
                     [0, Highcharts.getOptions().colors[0]],
                     [1, Highcharts.color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
                 ]
+            },
+            lineWidth: 2,
+            states: {
+                hover: {
+                    lineWidth: 3
+                }
             }
         }],
         stockTools: {
@@ -836,6 +852,20 @@ function initStockChart() {
         },
         navigation: {
             bindingsClassName: 'tools-container'
+        },
+        tooltip: {
+            backgroundColor: 'var(--card)',
+            borderColor: 'var(--border)',
+            borderRadius: 8,
+            style: {
+                color: 'var(--foreground)'
+            },
+            shadow: true,
+            split: false,
+            shared: true,
+            useHTML: true,
+            headerFormat: '<span style="font-size: 10px">{point.key}</span><br/>',
+            pointFormat: '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/>'
         }
     }, function (chart) {
         window.stockChart = chart;
@@ -855,12 +885,14 @@ function initStockChart() {
 
             // Switch to Simple Chart
             window.stockChart.update({
-                stockTools: { gui: { enabled: false } }, // Hide GUI
-                yAxis: [{ height: '100%', top: '0%' }, { height: '0%', top: '100%', visible: false }], // Single axis
+                stockTools: { gui: { enabled: false } },
+                navigator: { enabled: false },
+                scrollbar: { enabled: false },
+                yAxis: [{ height: '100%', top: '0%' }, { height: '0%', top: '100%', visible: false }],
                 series: [{
-                    type: 'area',
+                    type: 'areaspline',
                     data: lineData,
-                    color: null, // Will be set by theme
+                    color: null,
                     lineColor: null,
                     upColor: null,
                     upLineColor: null
@@ -874,8 +906,10 @@ function initStockChart() {
 
             // Switch to Advanced Chart
             window.stockChart.update({
-                stockTools: { gui: { enabled: true } }, // Show GUI
-                yAxis: [{ height: '80%', top: '0%' }, { height: '20%', top: '80%', visible: true }], // Dual axis for volume/MACD if needed
+                stockTools: { gui: { enabled: true } },
+                navigator: { enabled: true },
+                scrollbar: { enabled: true },
+                yAxis: [{ height: '80%', top: '0%' }, { height: '20%', top: '80%', visible: true }],
                 series: [{
                     type: 'candlestick',
                     data: ohlcData,
