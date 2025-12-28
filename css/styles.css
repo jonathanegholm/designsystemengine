@@ -383,3 +383,146 @@ body[data-shadows="large"] .shadow {
     /* Remove default icons if relying on SVGs, or invert filter */
     filter: invert(1);
 }
+
+/* Deeper Popover Overrides */
+.dark .highcharts-popup-main,
+.dark .highcharts-popup-lhs-col,
+.dark .highcharts-popup-rhs-col {
+    background-color: hsl(var(--card)) !important;
+}
+
+.dark .highcharts-indicator-list,
+.dark .highcharts-indicator-list li {
+    background-color: hsl(var(--card)) !important;
+    color: hsl(var(--foreground)) !important;
+}
+
+.dark .highcharts-indicator-list li:hover {
+    background-color: hsl(var(--accent)) !important;
+}
+
+.dark .highcharts-popup-tabs {
+    background-color: hsl(var(--card)) !important;
+    border-bottom: 1px solid hsl(var(--border)) !important;
+}
+
+.dark .highcharts-popup-bottom-row {
+    background-color: hsl(var(--card)) !important;
+    border-top: 1px solid hsl(var(--border)) !important;
+}
+
+.dark .highcharts-input-label {
+    color: hsl(var(--muted-foreground)) !important;
+}
+
+/* Comprehensive Dark Mode Fixes for Indicators */
+.dark .highcharts-popup-wrapper {
+    background-color: hsl(var(--card)) !important;
+    color: hsl(var(--foreground)) !important;
+}
+
+.dark ul.highcharts-indicator-list {
+    background-color: hsl(var(--card)) !important;
+    color: hsl(var(--foreground)) !important;
+    border-right: 1px solid hsl(var(--border)) !important;
+}
+
+.dark .highcharts-indicator-list-item {
+    color: hsl(var(--foreground)) !important;
+}
+
+.dark .highcharts-indicator-list-item:hover {
+    background-color: hsl(var(--accent)) !important;
+}
+
+.dark .highcharts-tab-item-content {
+    background-color: hsl(var(--card)) !important;
+    color: hsl(var(--foreground)) !important;
+}
+
+.dark .highcharts-tab-item {
+    background-color: hsl(var(--card)) !important;
+    color: hsl(var(--muted-foreground)) !important;
+    border: none !important;
+    border-bottom: 2px solid transparent !important;
+}
+
+.dark .highcharts-tab-item.highcharts-active {
+    background-color: hsl(var(--card)) !important;
+    color: hsl(var(--foreground)) !important;
+    border-bottom: 2px solid hsl(var(--primary)) !important;
+    font-weight: 600;
+}
+
+.dark .highcharts-popup-bottom-row {
+    background-color: hsl(var(--card)) !important;
+    border-top: 1px solid hsl(var(--border)) !important;
+}
+
+.dark .highcharts-popup-bottom-row>button {
+    background-color: hsl(var(--primary)) !important;
+    color: hsl(var(--primary-foreground)) !important;
+}
+
+.dark .highcharts-popup-bottom-row>button:hover {
+    opacity: 0.9;
+}
+
+/* ATOMIC OVERRIDES BASED ON DOM INSPECTION */
+.dark .highcharts-popup .highcharts-tab-item {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: hsl(var(--muted-foreground)) !important;
+}
+
+.dark .highcharts-popup .highcharts-tab-item-active {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: hsl(var(--foreground)) !important;
+    border-bottom: 2px solid hsl(var(--primary)) !important;
+}
+
+.dark .highcharts-popup div.highcharts-popup-rhs-col>button {
+    background-color: hsl(var(--primary)) !important;
+    color: hsl(var(--primary-foreground)) !important;
+    border: none !important;
+    border-radius: 4px;
+    padding: 6px 12px;
+}
+
+.dark .highcharts-popup .highcharts-indicator-list-item {
+    background-color: transparent !important;
+    color: hsl(var(--foreground)) !important;
+}
+
+.dark .highcharts-popup .highcharts-indicator-list-item:hover {
+    background-color: hsl(var(--accent)) !important;
+    color: hsl(var(--accent-foreground)) !important;
+}
+
+/* FINAL NUCLEAR FIX FOR BUTTONS */
+.dark .highcharts-popup button {
+    background-color: transparent !important;
+    color: hsl(var(--foreground)) !important;
+}
+
+.dark .highcharts-popup button.highcharts-popup-close {
+    background-color: transparent !important;
+    color: hsl(var(--muted-foreground)) !important;
+    border: none !important;
+}
+
+.dark .highcharts-popup button.highcharts-popup-close:hover {
+    background-color: hsl(var(--destructive)) !important;
+    color: hsl(var(--destructive-foreground)) !important;
+}
+
+/* Re-apply primary style to the "Add" button specifically */
+.dark .highcharts-popup .highcharts-popup-rhs-col button,
+.dark .highcharts-popup-bottom-row button {
+    background-color: hsl(var(--primary)) !important;
+    color: hsl(var(--primary-foreground)) !important;
+    border: none !important;
+    border-radius: 4px;
+    padding: 6px 12px;
+}
