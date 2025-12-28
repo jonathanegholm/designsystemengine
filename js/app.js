@@ -49,38 +49,6 @@ const SURFACES = [
 
 ];
 
-const LIBRARY_PRESETS = {
-    'shadcn': {
-        borderRadius: 'default', // 0.5rem (approx) -> using default map
-        fontFamily: 'Inter, sans-serif',
-        shadows: 'default',
-        buttonStyle: 'flat',
-        surfaceLevel: 'flat',
-        surface: 'Zinc'
-    },
-    'material': {
-        borderRadius: 'full', // Material 3 uses more rounding often, or 'rounded' (4px-28px). Let's use full/rounded mix, but 'rounded' map is small. 'default' is md. Let's try 'rounded' or 'default'. Material 3 buttons are often full pill.
-        // Actually, Material 3 cards are rounded-xl (12-16px). 'rounded' in our app might be closer.
-        // Let's stick to our existing 'rounded' (which seems to be the middle option).
-        // Wait, looking at index.html:
-        // none, default (radius-md?), rounded (radius-lg/xl?), full
-        // let's use 'rounded' for Material.
-        borderRadius: 'rounded',
-        fontFamily: 'Roboto, sans-serif',
-        shadows: 'default',
-        buttonStyle: 'flat', // Material 3 is flat/tonal usually.
-        surfaceLevel: 'raised', // Material often uses surface tones.
-        surface: 'Stone' // Warm grey often.
-    },
-    'untitled': {
-        borderRadius: 'default', // Usually 8-10px
-        fontFamily: 'Inter, sans-serif',
-        shadows: 'large',
-        buttonStyle: 'flat',
-        surfaceLevel: 'flat',
-        surface: 'Slate' // Cool grey
-    }
-};
 
 const STORAGE_KEY = 'design-system-presets';
 
@@ -202,8 +170,6 @@ const dom = {
     btnShadowNone: document.getElementById('btn-shadow-none'),
     btnShadowDefault: document.getElementById('btn-shadow-default'),
     btnShadowLarge: document.getElementById('btn-shadow-large'),
-    // Library
-    uiLibrarySelect: document.getElementById('ui-library-select'),
 };
 
 // --- CORE UI UPDATES ---
@@ -556,24 +522,6 @@ window.setFontFamily = function (font) {
     dom.fontFamilySelect.value = font;
 }
 
-// --- UI LIBRARY ---
-function setUiLibrary(name) {
-    if (name === 'custom') return;
-    const preset = LIBRARY_PRESETS[name];
-    if (!preset) return;
-
-    // Apply settings
-    setBorderRadius(preset.borderRadius);
-    setFontFamily(preset.fontFamily);
-    setShadows(preset.shadows);
-    setButtonStyle(preset.buttonStyle);
-    setSurfaceLevel(preset.surfaceLevel);
-    applySurface(preset.surface);
-
-    // Update UI for surface (applySurface calls updateSurface, but let's be sure)
-    // The other setters update state and DOM classes.
-}
-
 // --- EVENT LISTENERS ---
 dom.hue.addEventListener('input', (e) => { state.hue = parseFloat(e.target.value); state.baseColor = null; dom.hex.value = ''; updateUI(); dom.savedPresetsSelect.value = ""; dom.btnDeleteTrigger.classList.add('hidden'); });
 dom.chroma.addEventListener('input', (e) => { state.chroma = parseFloat(e.target.value); state.baseColor = null; dom.hex.value = ''; updateUI(); dom.savedPresetsSelect.value = ""; dom.btnDeleteTrigger.classList.add('hidden'); });
@@ -581,11 +529,6 @@ dom.hex.addEventListener('input', handleHex);
 dom.picker.addEventListener('input', (e) => { dom.hex.value = e.target.value; handleHex(e); });
 dom.fontFamilySelect.addEventListener('change', (e) => {
     window.setFontFamily(e.target.value);
-    dom.uiLibrarySelect.value = 'custom';
-});
-
-dom.uiLibrarySelect.addEventListener('change', (e) => {
-    setUiLibrary(e.target.value);
 });
 
 function handleHex(e) {
@@ -619,39 +562,7 @@ dom.btnCancelSave.addEventListener('click', () => dom.saveDialog.close());
 dom.btnCloseSaveDialog.addEventListener('click', () => dom.saveDialog.close());
 dom.btnConfirmSave.addEventListener('click', saveScale);
 
-// Add listeners to other control buttons to reset "UI Library" to "Custom" when manually changed
-function resetLibraryToCustom() {
-    if (dom.uiLibrarySelect.value !== 'custom') {
-        dom.uiLibrarySelect.value = 'custom';
-    }
-}
-
-// We need to attach this to all the manual setting buttons
-// Border Radius
-['none', 'default', 'rounded', 'full'].forEach(r => {
-    document.getElementById(`btn-radius-${r}`).addEventListener('click', resetLibraryToCustom);
-});
-// Button Style
-['flat', 'gradient', 'bevel'].forEach(s => {
-    document.getElementById(`btn-style-${s}`).addEventListener('click', resetLibraryToCustom);
-});
-// Shadows
-['none', 'default', 'large'].forEach(s => {
-    document.getElementById(`btn-shadow-${s}`).addEventListener('click', resetLibraryToCustom);
-});
-// Surface Level
-['flat', 'raised'].forEach(l => {
-    document.getElementById(`btn-level-${l}`).addEventListener('click', resetLibraryToCustom);
-});
-// Surface logic is complex because it rebuilds buttons. 
-// We can hook into the global applySurface or just adding a click delegation to container?
-// The buttons are re-rendered. Let's use delegation on container.
-dom.surfaceContainer.addEventListener('click', (e) => {
-    if (e.target.closest('button')) resetLibraryToCustom();
-});
-
-
-dom.presets.innerHTML = PRESETS.map(p => `<button onclick="applyPreset(${p.h}, ${p.c}); resetLibraryToCustom()" class="flex items-center gap-2 px-2.5 py-1 rounded-md border text-xs hover:bg-accent transition-colors"><div class="w-2.5 h-2.5 rounded-full" style="background-color: oklch(0.6 ${p.c} ${p.h})"></div>${p.name}</button>`).join('');
+dom.presets.innerHTML = PRESETS.map(p => `<button onclick="applyPreset(${p.h}, ${p.c})" class="flex items-center gap-2 px-2.5 py-1 rounded-md border text-xs hover:bg-accent transition-colors"><div class="w-2.5 h-2.5 rounded-full" style="background-color: oklch(0.6 ${p.c} ${p.h})"></div>${p.name}</button>`).join('');
 
 function applyPreset(h, c) {
     state.hue = h; state.chroma = c;
