@@ -621,17 +621,7 @@
                     </div>
 
                     <div class="flex flex-col items-end">
-                        <!-- Chart Mode Toggle -->
-                        <div class="flex bg-muted p-1 rounded-lg mb-4">
-                            <button id="btn-mode-simple"
-                                class="flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium bg-background text-foreground shadow-sm transition-all">
-                                <i data-lucide="activity" class="w-3.5 h-3.5"></i> Simple
-                            </button>
-                            <button id="btn-mode-advanced"
-                                class="flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium text-muted-foreground hover:text-foreground transition-all">
-                                <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i> Advanced
-                            </button>
-                        </div>
+
 
                         <div class="text-4xl font-semibold tracking-tight mono">192.45 USD</div>
                         <div class="flex items-center gap-2 mt-1">
@@ -646,6 +636,17 @@
 
                 <!-- Stock Chart -->
                 <div class="overflow-hidden min-h-[600px] relative">
+                    <!-- Chart Mode Toggle (Overlay) -->
+                    <div class="absolute top-2 right-2 z-20 flex bg-muted p-1 rounded-lg">
+                        <button id="btn-mode-simple"
+                            class="flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium bg-background text-foreground shadow-sm transition-all">
+                            <i data-lucide="activity" class="w-3.5 h-3.5"></i> Simple
+                        </button>
+                        <button id="btn-mode-advanced"
+                            class="flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium text-muted-foreground hover:text-foreground transition-all">
+                            <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i> Advanced
+                        </button>
+                    </div>
                     <div id="stock-chart-container" class="w-full h-[600px]"></div>
                 </div>
             </div>

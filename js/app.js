@@ -914,7 +914,7 @@ function updateChartTheme() {
     const gradient = {
         linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
         stops: [
-            [0, Highcharts.color(color600).setOpacity(0.5).get('rgba')],
+            [0, Highcharts.color(color600).setOpacity(0.3).get('rgba')],
             [1, Highcharts.color(color600).setOpacity(0).get('rgba')]
         ]
     };
