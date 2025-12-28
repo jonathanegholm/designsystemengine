@@ -758,20 +758,21 @@ function initNavigation() {
 }
 
 // --- HIGHCHARTS STOCK ---
-// --- HIGHCHARTS STOCK ---
+// --- HIGHCHARTS STOCK & CUSTOM SVG CHART ---
 function initStockChart() {
-    // Re-run icons for the new buttons
     lucide.createIcons();
-
     const btnSimple = document.getElementById('btn-mode-simple');
     const btnAdvanced = document.getElementById('btn-mode-advanced');
     window.chartMode = 'simple'; // Default
 
     // Generate random stock data (OHLC)
-    const ohlcData = (function () {
+    // 1 year of daily data
+    window.fullOhlcData = (function () {
         const arr = [];
-        const startTime = Date.now() - 365 * 24 * 60 * 60 * 1000;
+        const now = new Date();
+        const startTime = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate()).getTime();
         let price = 150;
+        // Generate roughly 365 points
         for (let i = 0; i < 365; i++) {
             const date = startTime + i * 24 * 60 * 60 * 1000;
             const open = price;
@@ -784,98 +785,50 @@ function initStockChart() {
         return arr;
     })();
 
-    // Simple Line Data (Date, Close)
-    const lineData = ohlcData.map(d => [d[0], d[4]]);
-
+    // Initialize Highcharts (Hidden by default)
     Highcharts.stockChart('stock-chart-container', {
         chart: {
             backgroundColor: 'transparent',
-            style: { fontFamily: 'inherit' },
-            spacingTop: 0,
-            spacingBottom: 0,
+            style: { fontFamily: 'inherit' }
         },
-        rangeSelector: {
-            selected: 1,
-            inputEnabled: false,
-            buttonTheme: {
-                fill: 'none',
-                stroke: 'none',
-                'stroke-width': 0,
-                r: 4,
-                style: { fontWeight: '500' },
-                states: { hover: {}, select: { style: { fontWeight: 'bold' } } }
-            }
-        },
-        navigator: { enabled: false }, // Hidden by default for simple
-        scrollbar: { enabled: false }, // Hidden by default for simple
+        rangeSelector: { selected: 1 },
         credits: { enabled: false },
         title: { text: '' },
         yAxis: [{
             labels: { align: 'left' },
-            height: '100%',
-            resize: { enabled: true },
-            gridLineWidth: 1, // Horizontal grid lines
-            lineWidth: 0 // No axis line
+            height: '80%',
+            resize: { enabled: true }
+        }, {
+            labels: { align: 'left' },
+            top: '80%',
+            height: '20%',
+            offset: 0
         }],
-        xAxis: {
-            lineColor: 'transparent',
-            tickLength: 0
-        },
         series: [{
-            type: 'areaspline', // Smooth curve for shadcn style
+            type: 'candlestick',
             name: 'AAPL',
-            data: lineData,
-            threshold: null,
-            fillColor: {
-                linearGradient: {
-                    x1: 0,
-                    y1: 0,
-                    x2: 0,
-                    y2: 1
-                },
-                stops: [
-                    [0, Highcharts.getOptions().colors[0]],
-                    [1, Highcharts.color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
-                ]
-            },
-            lineWidth: 2,
-            states: {
-                hover: {
-                    lineWidth: 3
-                }
-            }
+            data: window.fullOhlcData,
+            color: '#f43f5e',
+            lineColor: '#f43f5e',
+            upColor: '#10b981',
+            upLineColor: '#10b981'
         }],
-        stockTools: {
-            gui: {
-                enabled: false // Hidden by default for simple mode
-            }
-        },
-        navigation: {
-            bindingsClassName: 'tools-container'
-        },
-        tooltip: {
-            backgroundColor: 'var(--card)',
-            borderColor: 'var(--border)',
-            borderRadius: 8,
-            style: {
-                color: 'var(--foreground)'
-            },
-            shadow: true,
-            split: false,
-            shared: true,
-            useHTML: true,
-            headerFormat: '<span style="font-size: 10px">{point.key}</span><br/>',
-            pointFormat: '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/>'
-        }
+        stockTools: { gui: { enabled: true } },
+        navigation: { bindingsClassName: 'tools-container' }
     }, function (chart) {
         window.stockChart = chart;
         updateChartTheme();
     });
 
+    // Initialize Simple Chart (SVG)
+    initSimpleChart();
+
     // Toggle Logic
     const updateModeUI = () => {
         const activeClass = 'bg-background text-foreground shadow-sm'.split(' ');
         const inactiveClass = 'text-muted-foreground hover:text-foreground'.split(' ');
+        const simpleWrapper = document.getElementById('simple-chart-wrapper');
+        const advancedContainer = document.getElementById('stock-chart-container');
 
         if (window.chartMode === 'simple') {
             btnSimple.classList.add(...activeClass);
@@ -883,41 +836,20 @@ function initStockChart() {
             btnAdvanced.classList.add(...inactiveClass);
             btnAdvanced.classList.remove(...activeClass);
 
-            // Switch to Simple Chart
-            window.stockChart.update({
-                stockTools: { gui: { enabled: false } },
-                navigator: { enabled: false },
-                scrollbar: { enabled: false },
-                yAxis: [{ height: '100%', top: '0%' }, { height: '0%', top: '100%', visible: false }],
-                series: [{
-                    type: 'areaspline',
-                    data: lineData,
-                    color: null,
-                    lineColor: null,
-                    upColor: null,
-                    upLineColor: null
-                }]
-            });
+            simpleWrapper.classList.remove('hidden');
+            advancedContainer.classList.add('hidden');
+            renderSimpleChart(); // Re-render to ensure size/theme
         } else {
             btnAdvanced.classList.add(...activeClass);
             btnAdvanced.classList.remove(...inactiveClass);
             btnSimple.classList.add(...inactiveClass);
             btnSimple.classList.remove(...activeClass);
 
-            // Switch to Advanced Chart
-            window.stockChart.update({
-                stockTools: { gui: { enabled: true } },
-                navigator: { enabled: true },
-                scrollbar: { enabled: true },
-                yAxis: [{ height: '80%', top: '0%' }, { height: '20%', top: '80%', visible: true }],
-                series: [{
-                    type: 'candlestick',
-                    data: ohlcData,
-                    // Colors will be set by theme
-                }]
-            });
+            simpleWrapper.classList.add('hidden');
+            advancedContainer.classList.remove('hidden');
+            // Resize Highcharts
+            if (window.stockChart) setTimeout(() => window.stockChart.reflow(), 10);
         }
-        updateChartTheme(); // Re-apply theme colors
     };
 
     btnSimple.addEventListener('click', () => {
@@ -935,25 +867,203 @@ function initStockChart() {
     });
 }
 
+// --- SIMPLE SVG CHART LOGIC ---
+let simpleChartRange = '1Y'; // Default
+
+function initSimpleChart() {
+    // Range Buttons
+    const buttons = document.querySelectorAll('.simple-range-btn');
+    buttons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            // Update UI
+            buttons.forEach(b => {
+                b.classList.remove('bg-muted', 'text-foreground');
+                b.classList.add('text-muted-foreground');
+            });
+            e.target.classList.remove('text-muted-foreground');
+            e.target.classList.add('bg-muted', 'text-foreground');
+
+            // Set Range
+            simpleChartRange = e.target.getAttribute('data-range');
+            renderSimpleChart();
+        });
+    });
+
+    // Initial Render
+    renderSimpleChart();
+    window.addEventListener('resize', () => {
+        if (window.chartMode === 'simple') renderSimpleChart();
+    });
+}
+
+function filterDataForRange(range) {
+    const data = window.fullOhlcData; // [Date, Open, High, Low, Close]
+    if (!data || data.length === 0) return [];
+
+    const end = data[data.length - 1][0];
+    let start = data[0][0];
+    const oneDay = 24 * 60 * 60 * 1000;
+
+    switch (range) {
+        case '1M': start = end - 30 * oneDay; break;
+        case '3M': start = end - 90 * oneDay; break;
+        case '6M': start = end - 180 * oneDay; break;
+        case 'YTD':
+            const now = new Date(end);
+            start = new Date(now.getFullYear(), 0, 1).getTime();
+            break;
+        case '1Y': start = end - 365 * oneDay; break;
+        case 'ALL': default: start = data[0][0]; break;
+    }
+
+    return data.filter(d => d[0] >= start).map(d => ({ date: d[0], value: d[4] }));
+}
+
+function renderSimpleChart() {
+    const container = document.getElementById('simple-chart-container');
+    if (!container) return;
+
+    const data = filterDataForRange(simpleChartRange);
+    if (data.length < 2) return;
+
+    const w = container.offsetWidth;
+    const h = container.offsetHeight;
+    const padding = 10; // Top/Bottom padding
+
+    // Find Min/Max
+    let minVal = Infinity, maxVal = -Infinity;
+    data.forEach(d => {
+        if (d.value < minVal) minVal = d.value;
+        if (d.value > maxVal) maxVal = d.value;
+    });
+    const rangeVal = maxVal - minVal;
+
+    // Map Points
+    const pts = data.map((d, i) => {
+        const x = (i / (data.length - 1)) * w;
+        // Normalize y to height with padding
+        const normalizedY = (d.value - minVal) / rangeVal;
+        // Invert Y for SVG (0 is top)
+        const y = (h - padding) - (normalizedY * (h - 2 * padding));
+        return { x, y, ...d };
+    });
+
+    // Generate Path (Basic Spline or Linear)
+    // Using Catmull-Rom for smoothing (simplified) or simple Line
+    // For Shadcn look, a simple line with slight curve is good.
+    // Let's implement a simple line first, then curve. Recharts "monotone" is standard.
+    // Doing strict linear for robustness first.
+
+    // Construct Path 'd'
+    // L commands
+    /*
+    let dPath = `M ${pts[0].x},${pts[0].y}`;
+    for (let i = 1; i < pts.length; i++) {
+        dPath += ` L ${pts[i].x},${pts[i].y}`;
+    }
+    */
+
+    // Cubic Bezier Smoothing (Simple Logic)
+    // Or just Polyline for performance? Shadcn uses curves.
+    // Let's manually smooth slightly.
+    // A robust way without heavy math is to just use L for now to ensure it works, 
+    // or use a helper for spline.
+
+    // Using a simple strategy:
+    // Move to first, then for each subsequent, curve to it.
+    // Implementing a basic standard line for "Area"
+    let dPath = `M ${pts[0].x},${pts[0].y}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+        const p0 = pts[i];
+        const p1 = pts[i + 1];
+        // Midpoint control smoothing
+        // const mx = (p0.x + p1.x) / 2;
+        // dPath += ` C ${mx},${p0.y} ${mx},${p1.y} ${p1.x},${p1.y}`;
+        // Simple Line for Reliability
+        dPath += ` L ${p1.x},${p1.y}`;
+    }
+
+    // Area Fill Path: Close the loop down to bottom corners
+    const dFill = `${dPath} L ${w},${h} L 0,${h} Z`;
+
+    // Colors
+    const color600 = getComputedStyle(root).getPropertyValue('--color-600').trim();
+
+    // SVG
+    const svg = `
+    <svg width="100%" height="100%" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="overflow: visible;">
+        <defs>
+            <linearGradient id="simpleChartGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stop-color="${color600}" stop-opacity="0.3"></stop>
+                <stop offset="95%" stop-color="${color600}" stop-opacity="0"></stop>
+            </linearGradient>
+        </defs>
+        <path d="${dFill}" fill="url(#simpleChartGradient)" />
+        <path d="${dPath}" fill="none" stroke="${color600}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        
+        <!-- Crosshair Line (Hidden by default) -->
+        <line id="crosshair-x" x1="0" y1="0" x2="0" y2="${h}" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 4" style="opacity: 0;" />
+        
+        <!-- Hover Area Overlay -->
+        <rect id="chart-overlay" width="${w}" height="${h}" fill="transparent" />
+    </svg>
+    `;
+
+    container.innerHTML = svg;
+
+    // Interactivity
+    const overlay = container.querySelector('#chart-overlay');
+    const crosshair = container.querySelector('#crosshair-x');
+    const tooltip = document.getElementById('simple-chart-tooltip');
+
+    overlay.addEventListener('mousemove', (e) => {
+        const rect = container.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+
+        // Find nearest point
+        // Index roughly:
+        const index = Math.min(Math.max(Math.round((mouseX / w) * (pts.length - 1)), 0), pts.length - 1);
+        const pt = pts[index];
+
+        // Move Crosshair
+        crosshair.setAttribute('x1', pt.x);
+        crosshair.setAttribute('x2', pt.x);
+        crosshair.style.opacity = '1';
+
+        // Update Tooltip
+        tooltip.classList.remove('hidden');
+        tooltip.style.left = `${pt.x + 10}px`; // Offset slightly
+        tooltip.style.top = `${Math.min(pt.y, h - 50)}px`; // Keep somewhat near data, adjust if clips
+
+        // Handle tooltip overflow container right edge
+        if (pt.x > w - 120) {
+            tooltip.style.left = `${pt.x - 110}px`;
+        }
+
+        const dateStr = new Date(pt.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+        document.getElementById('simple-tooltip-price').innerText = pt.value.toFixed(2) + ' USD';
+        document.getElementById('simple-tooltip-date').innerText = dateStr;
+    });
+
+    overlay.addEventListener('mouseleave', () => {
+        crosshair.style.opacity = '0';
+        tooltip.classList.add('hidden');
+    });
+}
+
 function updateChartTheme() {
+    // Re-render SVG if in simple mode
+    if (window.chartMode === 'simple') {
+        renderSimpleChart();
+    }
+
+    // Existing Highcharts theme update logic
     if (!window.stockChart) return;
     const isDark = root.classList.contains('dark');
     const color600 = getComputedStyle(root).getPropertyValue('--color-600').trim();
-    const color100 = getComputedStyle(root).getPropertyValue('--color-100').trim();
     const fg = isDark ? '#ffffff' : '#000000';
     const muted = isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)';
     const grid = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
-
-    // Gradient for Simple Mode
-    const gradient = {
-        linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-        stops: [
-            [0, Highcharts.color(color600).setOpacity(0.3).get('rgba')],
-            [1, Highcharts.color(color600).setOpacity(0).get('rgba')]
-        ]
-    };
-
-    const isSimple = window.chartMode === 'simple';
 
     window.stockChart.update({
         chart: {
@@ -970,7 +1080,6 @@ function updateChartTheme() {
             gridLineColor: grid,
             labels: { style: { color: muted } }
         }, {
-            // Second axis (if present)
             gridLineColor: grid,
             labels: { style: { color: muted } }
         }],
@@ -995,16 +1104,12 @@ function updateChartTheme() {
             series: { color: color600, lineColor: color600 },
             xAxis: { labels: { style: { color: muted } } }
         },
-        // Specific Series Updates based on Mode
         series: [{
-            color: isSimple ? color600 : '#f43f5e', // Use config color for simple, Red for candle drop
+            color: isSimple ? color600 : '#f43f5e',
             lineColor: isSimple ? color600 : '#f43f5e',
             fillColor: isSimple ? gradient : undefined,
             upColor: '#10b981',
             upLineColor: '#10b981'
         }]
-    }, false); // Set redraw to false to batch updates if needed, but here simple update is fine
-
-    // Force redraw to ensure gradient applies
-    window.stockChart.redraw();
+    });
 }
