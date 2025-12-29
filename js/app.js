@@ -53,7 +53,7 @@ const SURFACES = [
 const STORAGE_KEY = 'design-system-presets';
 
 // --- STATE ---
-let state = { hue: 250, chroma: 0.14, baseColor: null, surfaceLevel: 'flat', borderRadius: 'default', buttonStyle: 'flat', shadows: 'default', fontFamily: 'Inter, sans-serif' };
+let state = { hue: 250, chroma: 0.14, baseColor: null, surfaceLevel: 'flat', borderRadius: 'default', buttonStyle: 'flat', shadows: 'default', fontFamily: 'Inter, sans-serif', positivePreset: 'Emerald', negativePreset: 'Red' };
 let currentSurface = SURFACES[0];
 let currentScaleValues = {};
 let userPresets = {};
@@ -170,6 +170,9 @@ const dom = {
     btnShadowNone: document.getElementById('btn-shadow-none'),
     btnShadowDefault: document.getElementById('btn-shadow-default'),
     btnShadowLarge: document.getElementById('btn-shadow-large'),
+    // Semantic
+    positiveSelect: document.getElementById('positive-preset-select'),
+    negativeSelect: document.getElementById('negative-preset-select')
 };
 
 // --- CORE UI UPDATES ---
@@ -202,7 +205,30 @@ function updateUI() {
         const val = `oklch(${stop.l} ${adjChroma.toFixed(3)} ${state.hue})`;
         root.style.setProperty(`--color-${stop.name}`, val);
         currentScaleValues[stop.name] = val;
+
+
     });
+
+    // Semantic Colors
+    const posP = PRESETS.find(p => p.name === state.positivePreset) || PRESETS.find(p => p.name === 'Emerald');
+    const negP = PRESETS.find(p => p.name === state.negativePreset) || PRESETS.find(p => p.name === 'Red');
+
+    const generateSemanticVars = (preset, prefix) => {
+        STOPS.forEach(stop => {
+            let adjChroma = preset.c;
+            if (stop.l > 0.92) adjChroma = preset.c * 0.5;
+            if (stop.l < 0.2) adjChroma = preset.c * 0.8;
+            const val = `oklch(${stop.l} ${adjChroma.toFixed(3)} ${preset.h})`;
+            root.style.setProperty(`--color-${prefix}-${stop.name}`, val);
+        });
+    };
+
+    generateSemanticVars(posP, 'positive');
+    generateSemanticVars(negP, 'negative');
+
+    // Update Dropdown Values
+    if (dom.positiveSelect.value !== state.positivePreset) dom.positiveSelect.value = state.positivePreset;
+    if (dom.negativeSelect.value !== state.negativePreset) dom.negativeSelect.value = state.negativePreset;
 
     dom.hueVal.innerText = state.hue.toFixed(0);
     dom.chromaVal.innerText = state.chroma.toFixed(3);
@@ -215,7 +241,40 @@ function updateUI() {
     renderScale();
     renderChart();
     updateChartTheme();
+    updateSemanticClasses();
     window.dispatchEvent(new CustomEvent('colorChange', { detail: { hue: state.hue, chroma: state.chroma } }));
+}
+
+function updateSemanticClasses() {
+    // Helper to inject/update styles for semantic utility classes
+    let style = document.getElementById('semantic-styles');
+    if (!style) {
+        style = document.createElement('style');
+        style.id = 'semantic-styles';
+        document.head.appendChild(style);
+    }
+
+    // We use the variables we just set
+    style.innerHTML = `
+        .text-positive { color: var(--color-positive-600) !important; }
+        .text-negative { color: var(--color-negative-600) !important; }
+        .bg-positive-muted { background-color: var(--color-positive-500); opacity: 0.1; }
+        .bg-positive-subtle { background-color: color-mix(in srgb, var(--color-positive-500) 10%, transparent); }
+        .bg-negative-muted { background-color: var(--color-negative-500); opacity: 0.1; }
+        .bg-negative-subtle { background-color: color-mix(in srgb, var(--color-negative-500) 10%, transparent); }
+    `;
+
+    // Attempt dynamic replacement of hardcoded classes if any exist in stock example
+    // This is "best effort" to make existing Example Page text dynamic
+    document.querySelectorAll('.text-emerald-600, .text-emerald-400').forEach(el => {
+        el.classList.remove('text-emerald-600', 'text-emerald-400');
+        el.classList.add('text-positive');
+    });
+
+    document.querySelectorAll('.bg-emerald-500\\/10').forEach(el => {
+        el.classList.remove('bg-emerald-500/10');
+        el.classList.add('bg-positive-subtle'); // Custom class
+    });
 }
 
 function renderScale() {
@@ -572,6 +631,28 @@ function applyPreset(h, c) {
     state.baseColor = null;
     dom.hex.value = '';
     dom.warning.classList.add('hidden');
+    // Init Semantic Selects
+    const populateSelect = (sel) => {
+        sel.innerHTML = '';
+        PRESETS.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p.name;
+            opt.innerText = p.name;
+            sel.appendChild(opt);
+        });
+    };
+    populateSelect(dom.positiveSelect);
+    populateSelect(dom.negativeSelect);
+
+    dom.positiveSelect.addEventListener('change', (e) => {
+        state.positivePreset = e.target.value;
+        updateUI();
+    });
+    dom.negativeSelect.addEventListener('change', (e) => {
+        state.negativePreset = e.target.value;
+        updateUI();
+    });
+
     updateUI();
 }
 
@@ -821,6 +902,34 @@ function updateChartTheme() {
     const muted = isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)';
     const grid = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
 
+    // Calculate hex from the semantic variables effectively
+    // Highcharts needs hex. We can compute it from the state presets.
+    const posPreset = PRESETS.find(p => p.name === state.positivePreset) || PRESETS.find(p => p.name === 'Emerald');
+    const negPreset = PRESETS.find(p => p.name === state.negativePreset) || PRESETS.find(p => p.name === 'Red');
+
+    // 600 weight for standard text/lines
+    const posColor = oklchToHex(posPreset.l || 0.54, posPreset.c, posPreset.h); // STOPS[6] is 0.54
+    const negColor = oklchToHex(negPreset.l || 0.54, negPreset.c, negPreset.h);
+
+    // We need 500/600 equivalent. Hardcoded l=0.54 matches STOPS[6] '600'
+    // Actually, let's just grab the variable from the root if possible, 
+    // or re-calculate using helper.
+
+    // Re-calc helper
+    const getHexForStop = (preset, stopName) => {
+        const stop = STOPS.find(s => s.name === stopName);
+        let adjChroma = preset.c;
+        if (stop.l > 0.92) adjChroma = preset.c * 0.5;
+        if (stop.l < 0.2) adjChroma = preset.c * 0.8;
+        const rgb = oklchToSrgb(stop.l, adjChroma, preset.h);
+        return `#${((1 << 24) + (rgb.r << 16) + (rgb.g << 8) + rgb.b).toString(16).slice(1)}`;
+    };
+
+    const upColorHex = getHexForStop(posPreset, '500'); // Emerald 500 usually
+    const upLineHex = getHexForStop(posPreset, '600');
+    const downColorHex = getHexForStop(negPreset, '500'); // Red 500 usually
+    const downLineHex = getHexForStop(negPreset, '600');
+
     window.stockChart.update({
         chart: {
             backgroundColor: 'transparent',
@@ -836,6 +945,7 @@ function updateChartTheme() {
             gridLineColor: grid,
             labels: { style: { color: muted } }
         }, {
+            // Second axis (if present)
             gridLineColor: grid,
             labels: { style: { color: muted } }
         }],
@@ -861,10 +971,15 @@ function updateChartTheme() {
             xAxis: { labels: { style: { color: muted } } }
         },
         series: [{
-            color: '#f43f5e',
-            lineColor: '#f43f5e',
-            upColor: '#10b981',
-            upLineColor: '#10b981'
+            color: downColorHex,
+            lineColor: downLineHex,
+            upColor: upColorHex,
+            upLineColor: upLineHex
         }]
     });
+}
+
+function oklchToHex(l, c, h) {
+    const rgb = oklchToSrgb(l, c, h);
+    return `#${((1 << 24) + (rgb.r << 16) + (rgb.g << 8) + rgb.b).toString(16).slice(1)}`;
 }
