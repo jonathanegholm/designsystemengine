@@ -345,65 +345,43 @@ function renderScale() {
 }
 
 // --- CHART ---
-// --- CHART (Market Activity) ---
 function renderChart() {
     const container = document.getElementById('chart-container');
     if (!container) return;
-
-    // Determine Semantic Colors
-    const posPreset = PRESETS.find(p => p.name === state.positivePreset) || PRESETS.find(p => p.name === 'Emerald');
-    const negPreset = PRESETS.find(p => p.name === state.negativePreset) || PRESETS.find(p => p.name === 'Red');
-
-    // Helper to get hex from preset (assuming 600 weight for strong visibility)
-    const getHex = (preset) => {
-        const stop = STOPS.find(s => s.name === '600');
-        let adjChroma = preset.c;
-        if (stop.l > 0.92) adjChroma = preset.c * 0.5;
-        if (stop.l < 0.2) adjChroma = preset.c * 0.8;
-        const rgb = oklchToSrgb(stop.l, adjChroma, preset.h);
-        return `#${((1 << 24) + (rgb.r << 16) + (rgb.g << 8) + rgb.b).toString(16).slice(1)}`;
-    };
-
-    const posHex = getHex(posPreset);
-    const negHex = getHex(negPreset);
-
-    // Candle Data for Market Activity
-    // Simulating a mixed trend
-    const data = [
-        { h: 30, up: true }, { h: 50, up: false }, { h: 40, up: true },
-        { h: 70, up: true }, { h: 20, up: false }, { h: 60, up: true },
-        { h: 80, up: true }, { h: 45, up: false }
-    ];
-
+    const data = [400, 300, 550, 480, 690, 800];
     const w = container.offsetWidth;
     const h = container.offsetHeight;
-    const barW = (w / data.length) * 0.6;
-    const gap = (w / data.length);
-
-    let svgRaw = '';
-    data.forEach((d, i) => {
-        const x = i * gap + (gap - barW) / 2;
-        const barH = (d.h / 100) * (h * 0.8);
-        const y = (h - barH) / 2; // Center it
-        const col = d.up ? posHex : negHex;
-        svgRaw += `<rect x="${x}" y="${y}" width="${barW}" height="${barH}" rx="2" fill="${col}" />`;
+    const max = 850;
+    const pts = data.map((d, i) => {
+        const x = (i / (data.length - 1)) * w;
+        const y = h - ((d / max) * h);
+        return `${x},${y}`;
     });
-
-    container.innerHTML = `<svg width="${w}" height="${h}" style="overflow:visible">${svgRaw}</svg>`;
-} const dots = container.querySelectorAll('.chart-dot');
-const tooltip = document.getElementById('chart-tooltip');
-dots.forEach(dot => {
-    dot.addEventListener('mouseenter', (e) => {
-        tooltip.textContent = `$${e.target.getAttribute('data-val')}`;
-        tooltip.style.opacity = '1';
-        const r = e.target.getBoundingClientRect();
-        const c = container.getBoundingClientRect();
-        tooltip.style.left = `${(r.left - c.left) - 10}px`;
-        tooltip.style.top = `${(r.top - c.top) - 35}px`;
+    let d = `M ${pts[0]}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+        const [x0, y0] = pts[i].split(',').map(Number);
+        const [x1, y1] = pts[i + 1].split(',').map(Number);
+        const cp1x = x0 + (x1 - x0) / 2;
+        const cp2x = x1 - (x1 - x0) / 2;
+        d += ` C ${cp1x},${y0} ${cp2x},${y1} ${x1},${y1}`;
+    }
+    const dFill = `${d} L ${w},${h} L 0,${h} Z`;
+    const svg = `<svg width="100%" height="100%" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" class="overflow-visible"><defs><linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--color-600)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--color-600)" stop-opacity="0"/></linearGradient></defs><path d="${dFill}" fill="url(#chartGradient)" /><path d="${d}" fill="none" stroke="var(--color-600)" stroke-width="2" />${pts.map((p, i) => { const [cx, cy] = p.split(','); return `<circle cx="${cx}" cy="${cy}" r="4" fill="var(--color-background)" stroke="var(--color-600)" stroke-width="2" class="chart-dot" data-val="${data[i]}" />` }).join('')}</svg>`;
+    container.innerHTML = svg + '<div id="chart-tooltip" class="chart-tooltip"></div>';
+    const dots = container.querySelectorAll('.chart-dot');
+    const tooltip = document.getElementById('chart-tooltip');
+    dots.forEach(dot => {
+        dot.addEventListener('mouseenter', (e) => {
+            tooltip.textContent = `$${e.target.getAttribute('data-val')}`;
+            tooltip.style.opacity = '1';
+            const r = e.target.getBoundingClientRect();
+            const c = container.getBoundingClientRect();
+            tooltip.style.left = `${(r.left - c.left) - 10}px`;
+            tooltip.style.top = `${(r.top - c.top) - 35}px`;
+        });
+        dot.addEventListener('mouseleave', () => { tooltip.style.opacity = '0'; });
     });
-    dot.addEventListener('mouseleave', () => { tooltip.style.opacity = '0'; });
-});
-
+}
 window.addEventListener('resize', renderChart);
 
 // --- LOCAL STORAGE & PRESETS ---
@@ -665,14 +643,6 @@ function applyPreset(h, c) {
     };
     populateSelect(dom.positiveSelect);
     populateSelect(dom.negativeSelect);
-
-    // Ensure Defaults
-    if (!state.positivePreset) state.positivePreset = 'Emerald';
-    if (!state.negativePreset) state.negativePreset = 'Red';
-
-    // Set Values
-    dom.positiveSelect.value = state.positivePreset;
-    dom.negativeSelect.value = state.negativePreset;
 
     dom.positiveSelect.addEventListener('change', (e) => {
         state.positivePreset = e.target.value;
