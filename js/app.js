@@ -241,6 +241,7 @@ function updateUI() {
     renderScale();
     renderChart();
     updateChartTheme();
+    renderCandlestickChart();
     updateSemanticClasses();
     window.dispatchEvent(new CustomEvent('colorChange', { detail: { hue: state.hue, chroma: state.chroma } }));
 }
@@ -631,8 +632,11 @@ function applyPreset(h, c) {
     state.baseColor = null;
     dom.hex.value = '';
     dom.warning.classList.add('hidden');
-    // Init Semantic Selects
-    const populateSelect = (sel) => {
+    updateUI();
+}
+
+function initSemanticSelects() {
+    const populate = (sel) => {
         sel.innerHTML = '';
         PRESETS.forEach(p => {
             const opt = document.createElement('option');
@@ -641,8 +645,8 @@ function applyPreset(h, c) {
             sel.appendChild(opt);
         });
     };
-    populateSelect(dom.positiveSelect);
-    populateSelect(dom.negativeSelect);
+    populate(dom.positiveSelect);
+    populate(dom.negativeSelect);
 
     dom.positiveSelect.addEventListener('change', (e) => {
         state.positivePreset = e.target.value;
@@ -652,18 +656,62 @@ function applyPreset(h, c) {
         state.negativePreset = e.target.value;
         updateUI();
     });
-
-    updateUI();
 }
 
-document.getElementById('btn-theme').addEventListener('click', () => {
+// --- GLOBAL ACTIONS ---
+function toggleTheme() {
     const isDark = document.documentElement.classList.toggle('dark');
-    document.getElementById('icon-theme').setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+    const iconName = isDark ? 'sun' : 'moon';
+
+    const iconTheme = document.getElementById('icon-theme');
+    if (iconTheme) iconTheme.setAttribute('data-lucide', iconName);
+
+    const mobIconTheme = document.getElementById('mob-icon-theme');
+    if (mobIconTheme) mobIconTheme.setAttribute('data-lucide', iconName);
+
     lucide.createIcons();
     updateSurface();
-});
+
+    const mobileMenu = document.getElementById('mobile-menu');
+    if (mobileMenu) mobileMenu.classList.add('hidden');
+}
+
+function resetConfiguration() {
+    applyPreset(250, 0.14);
+    applySurface('Zinc');
+    setSurfaceLevel('flat');
+    setBorderRadius('default');
+    setButtonStyle('flat');
+    setShadows('default');
+    dom.savedPresetsSelect.value = "";
+    dom.btnDeleteTrigger.classList.add('hidden');
+
+    const mobileMenu = document.getElementById('mobile-menu');
+    if (mobileMenu) mobileMenu.classList.add('hidden');
+}
+
+// Event Listeners
+const btnTheme = document.getElementById('btn-theme');
+if (btnTheme) btnTheme.addEventListener('click', toggleTheme);
+
+const mobBtnTheme = document.getElementById('mob-btn-theme');
+if (mobBtnTheme) mobBtnTheme.addEventListener('click', toggleTheme);
+
+const btnReset = document.getElementById('btn-reset');
+if (btnReset) btnReset.addEventListener('click', resetConfiguration);
+
+const mobBtnReset = document.getElementById('mob-btn-reset');
+if (mobBtnReset) mobBtnReset.addEventListener('click', resetConfiguration);
+
+const btnMobileMenu = document.getElementById('btn-mobile-menu-toggle');
+if (btnMobileMenu) {
+    btnMobileMenu.addEventListener('click', () => {
+        const mm = document.getElementById('mobile-menu');
+        if (mm) mm.classList.toggle('hidden');
+    });
+}
+
 document.getElementById('btn-copy-json').addEventListener('click', () => copyToClipboard(JSON.stringify(currentScaleValues, null, 2), 'JSON Copied!'));
-document.getElementById('btn-reset').addEventListener('click', () => { applyPreset(250, 0.14); applySurface('Zinc'); setSurfaceLevel('flat'); setBorderRadius('default'); setButtonStyle('flat'); setShadows('default'); dom.savedPresetsSelect.value = ""; dom.btnDeleteTrigger.classList.add('hidden'); });
 
 dom.btnImport.addEventListener('click', () => dom.fileImport.click());
 dom.fileImport.addEventListener('change', (e) => {
@@ -682,6 +730,7 @@ dom.fileImport.addEventListener('change', (e) => {
     reader.readAsText(file);
 });
 
+initSemanticSelects();
 initSavedPresets();
 lucide.createIcons();
 renderScale();
@@ -740,9 +789,8 @@ function renderCandlestickChart() {
         const yClose = padding + ((maxPrice - d.c) / priceRange) * (h - padding * 2);
 
         const isBullish = d.c > d.o;
-        // Bullish: Green (Emerald 500), Bearish: Red (Rose 500)
-        // Using Tailwind colors directly for SVG
-        const color = isBullish ? '#10b981' : '#f43f5e';
+        // Bullish: Positive, Bearish: Negative
+        const color = isBullish ? 'var(--color-positive-500)' : 'var(--color-negative-500)';
 
         // Wick
         svgContent += `<line x1="${x + candleWidth / 2}" y1="${yHigh}" x2="${x + candleWidth / 2}" y2="${yLow}" stroke="${color}" stroke-width="1.5" />`;
@@ -773,7 +821,7 @@ function renderCandlestickChart() {
             const isBull = parseFloat(c) > parseFloat(o);
 
             tooltip.innerHTML = `
-                <div class="font-bold border-b pb-1 mb-1 ${isBull ? 'text-emerald-600' : 'text-rose-600'}">${isBull ? 'Bullish' : 'Bearish'}</div>
+                <div class="font-bold border-b pb-1 mb-1 ${isBull ? 'text-positive' : 'text-negative'}">${isBull ? 'Bullish' : 'Bearish'}</div>
                 <div class="grid grid-cols-2 gap-x-3 gap-y-0.5 text-[10px]">
                     <span class="opacity-70">Open</span> <span class="font-mono text-right">${o}</span>
                     <span class="opacity-70">High</span> <span class="font-mono text-right">${h}</span>
@@ -808,34 +856,54 @@ setTimeout(() => {
 function initNavigation() {
     const navScale = document.getElementById('nav-scale');
     const navExample = document.getElementById('nav-example');
+    const mobNavScale = document.getElementById('mob-nav-scale');
+    const mobNavExample = document.getElementById('mob-nav-example');
     const viewScale = document.getElementById('view-scale');
     const viewExample = document.getElementById('view-example');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    function updateNavState(el, isActive) {
+        if (!el) return;
+        if (isActive) {
+            el.classList.remove('text-muted-foreground', 'hover:bg-transparent');
+            el.classList.add('bg-muted', 'text-foreground');
+        } else {
+            el.classList.add('text-muted-foreground', 'hover:bg-transparent');
+            el.classList.remove('bg-muted', 'text-foreground');
+        }
+    }
 
     function switchTab(view) {
-        if (view === 'scale') {
+        const isScale = view === 'scale';
+
+        if (isScale) {
             viewScale.classList.remove('hidden');
             viewExample.classList.add('hidden');
-            navScale.classList.remove('text-muted-foreground', 'hover:bg-transparent');
-            navScale.classList.add('bg-muted', 'text-foreground');
-            navExample.classList.add('text-muted-foreground', 'hover:bg-transparent');
-            navExample.classList.remove('bg-muted', 'text-foreground');
         } else {
             viewScale.classList.add('hidden');
             viewExample.classList.remove('hidden');
-            navExample.classList.remove('text-muted-foreground', 'hover:bg-transparent');
-            navExample.classList.add('bg-muted', 'text-foreground');
-            navScale.classList.add('text-muted-foreground', 'hover:bg-transparent');
-            navScale.classList.remove('bg-muted', 'text-foreground');
-
             // Resize chart when it becomes visible
             if (window.stockChart) {
                 setTimeout(() => window.stockChart.reflow(), 10);
             }
         }
+
+        // Update Desktop
+        updateNavState(navScale, isScale);
+        updateNavState(navExample, !isScale);
+
+        // Update Mobile
+        updateNavState(mobNavScale, isScale);
+        updateNavState(mobNavExample, !isScale);
+
+        // Close mobile menu if open
+        if (mobileMenu) mobileMenu.classList.add('hidden');
     }
 
-    navScale.addEventListener('click', () => switchTab('scale'));
-    navExample.addEventListener('click', () => switchTab('example'));
+    if (navScale) navScale.addEventListener('click', () => switchTab('scale'));
+    if (navExample) navExample.addEventListener('click', () => switchTab('example'));
+    if (mobNavScale) mobNavScale.addEventListener('click', () => switchTab('scale'));
+    if (mobNavExample) mobNavExample.addEventListener('click', () => switchTab('example'));
 }
 
 // --- HIGHCHARTS STOCK ---
