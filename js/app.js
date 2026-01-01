@@ -671,6 +671,7 @@ function toggleTheme() {
 
     lucide.createIcons();
     updateSurface();
+    updateChartTheme();
 
     const mobileMenu = document.getElementById('mobile-menu');
     if (mobileMenu) mobileMenu.classList.add('hidden');
@@ -937,13 +938,7 @@ function initStockChart() {
         title: { text: '' },
         yAxis: [{
             labels: { align: 'left' },
-            height: '80%',
-            resize: { enabled: true }
-        }, {
-            labels: { align: 'left' },
-            top: '80%',
-            height: '20%',
-            offset: 0
+            height: '100%'
         }],
         series: [{
             type: 'candlestick',
@@ -965,23 +960,23 @@ function initStockChart() {
 function updateChartTheme() {
     if (!window.stockChart) return;
     const isDark = root.classList.contains('dark');
-    const color600 = getComputedStyle(root).getPropertyValue('--color-600').trim();
-    const fg = isDark ? '#ffffff' : '#000000';
-    const muted = isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)';
+
+    // Get computed styles for semantic variables
+    const computedStyle = getComputedStyle(root);
+    const fgColor = `hsl(${computedStyle.getPropertyValue('--foreground').trim()})`;
+    const mutedFgColor = `hsl(${computedStyle.getPropertyValue('--muted-foreground').trim()})`;
+    const borderColor = `hsl(${computedStyle.getPropertyValue('--border').trim()})`;
+
+    // color600 is used for some highlights
+    const color600 = computedStyle.getPropertyValue('--color-600').trim();
+
+    // Keep grid subtle
     const grid = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
 
     // Calculate hex from the semantic variables effectively
     // Highcharts needs hex. We can compute it from the state presets.
     const posPreset = PRESETS.find(p => p.name === state.positivePreset) || PRESETS.find(p => p.name === 'Emerald');
     const negPreset = PRESETS.find(p => p.name === state.negativePreset) || PRESETS.find(p => p.name === 'Red');
-
-    // 600 weight for standard text/lines
-    const posColor = oklchToHex(posPreset.l || 0.54, posPreset.c, posPreset.h); // STOPS[6] is 0.54
-    const negColor = oklchToHex(negPreset.l || 0.54, negPreset.c, negPreset.h);
-
-    // We need 500/600 equivalent. Hardcoded l=0.54 matches STOPS[6] '600'
-    // Actually, let's just grab the variable from the root if possible, 
-    // or re-calculate using helper.
 
     // Re-calc helper
     const getHexForStop = (preset, stopName) => {
@@ -1005,22 +1000,18 @@ function updateChartTheme() {
         },
         xAxis: {
             gridLineColor: grid,
-            lineColor: muted,
-            tickColor: muted,
-            labels: { style: { color: muted } }
+            lineColor: borderColor,      // Fix: Use semantic border color
+            tickColor: borderColor,      // Fix: Use semantic border color
+            labels: { style: { color: mutedFgColor } } // Fix: Use semantic muted foreground
         },
         yAxis: [{
             gridLineColor: grid,
-            labels: { style: { color: muted } }
-        }, {
-            // Second axis (if present)
-            gridLineColor: grid,
-            labels: { style: { color: muted } }
+            labels: { style: { color: mutedFgColor } } // Fix: Use semantic muted foreground
         }],
         rangeSelector: {
             buttonTheme: {
                 fill: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
-                style: { color: fg },
+                style: { color: fgColor },
                 states: {
                     select: {
                         fill: color600,
@@ -1031,12 +1022,12 @@ function updateChartTheme() {
                     }
                 }
             },
-            labelStyle: { color: muted }
+            labelStyle: { color: mutedFgColor }
         },
         navigator: {
             maskFill: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
             series: { color: color600, lineColor: color600 },
-            xAxis: { labels: { style: { color: muted } } }
+            xAxis: { labels: { style: { color: mutedFgColor } } }
         },
         series: [{
             color: downColorHex,
@@ -1045,6 +1036,20 @@ function updateChartTheme() {
             upLineColor: upLineHex
         }]
     });
+
+    // Force update of existing range selector buttons (Highcharts explicit update fix)
+    if (window.stockChart.rangeSelector && window.stockChart.rangeSelector.buttons) {
+        const btnFill = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+        window.stockChart.rangeSelector.buttons.forEach(btn => {
+            // Update the background rect
+            btn.attr({ fill: btnFill });
+
+            // Update the text styling
+            if (btn.text) {
+                btn.text.css({ color: fg });
+            }
+        });
+    }
 }
 
 function oklchToHex(l, c, h) {

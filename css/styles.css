@@ -317,6 +317,16 @@ body[data-shadows="large"] .shadow {
     background-color: transparent !important;
     border-color: transparent !important;
     color: hsl(var(--foreground)) !important;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: var(--radius) !important;
+    margin-bottom: 2px !important;
 }
 
 .dark .highcharts-stocktools-toolbar li:hover {
@@ -379,9 +389,18 @@ body[data-shadows="large"] .shadow {
 }
 
 .dark .highcharts-stocktools-toolbar li>span.highcharts-menu-item-btn {
-    background-image: none !important;
-    /* Remove default icons if relying on SVGs, or invert filter */
-    filter: invert(1);
+    width: 100% !important;
+    height: 100% !important;
+    background-repeat: no-repeat !important;
+    background-position: center center !important;
+    filter: invert(1) brightness(2) !important;
+}
+
+.dark .highcharts-submenu-item-arrow {
+    margin-left: 0 !important;
+    right: 4px !important;
+    bottom: 4px !important;
+    filter: invert(1) !important;
 }
 
 /* Deeper Popover Overrides */
