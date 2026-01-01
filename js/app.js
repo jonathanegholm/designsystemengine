@@ -204,6 +204,17 @@ function getComputedColor(varName) {
     // Get the value from the root style (which might be oklch(...))
     // We need to resolve this to RGB for our contrast calculator
     const val = getComputedStyle(root).getPropertyValue(varName).trim();
+    // FALLBACK: If checking primary and it is resolving to a variable ref that isn't computed yet or similar edge case, 
+    // manually resolve for known dynamic vars to ensure checker is instant
+    if (varName === '--primary') {
+        // Re-calculate 600 manually to be safe? 
+        // Actually, if we just set it in updateUI, it should be available. 
+        // But let's check for the "var(--color-600)" string return.
+        if (val.startsWith('var(')) {
+            const innerVar = val.match(/var\(([\w-]+)\)/)[1];
+            return getComputedColor(innerVar);
+        }
+    }
     if (!val) return { r: 255, g: 255, b: 255 }; // Fallback
 
     // If it's oklch, parse it
@@ -462,6 +473,29 @@ function updateUI() {
     updateChartTheme();
     renderCandlestickChart();
     updateSemanticClasses();
+    renderCandlestickChart();
+    updateSemanticClasses();
+
+    // Map Primary to Brand (Color 600)
+    // We calculate contrast against 600 to determine foreground
+    const brandStop = STOPS.find(s => s.name === '600');
+    let adjChroma = state.chroma;
+    // Logic from renderScale loop for consistency
+    if (brandStop.l > 0.92) adjChroma = state.chroma * 0.5;
+    if (brandStop.l < 0.2) adjChroma = state.chroma * 0.8;
+
+    // Check contrast for 600
+    const rgb600 = oklchToSrgb(brandStop.l, adjChroma, state.hue);
+    const contrastWhite = getContrast(rgb600, { r: 255, g: 255, b: 255 });
+    const contrastBlack = getContrast(rgb600, { r: 0, g: 0, b: 0 });
+
+    // Choose Foreground
+    const useWhite = contrastWhite >= 4.5 || contrastWhite > contrastBlack;
+    const fgVal = useWhite ? 'var(--color-50)' : 'var(--color-900)';
+
+    root.style.setProperty('--primary', 'var(--color-600)');
+    root.style.setProperty('--primary-foreground', fgVal);
+
     window.dispatchEvent(new CustomEvent('colorChange', { detail: { hue: state.hue, chroma: state.chroma } }));
 }
 
