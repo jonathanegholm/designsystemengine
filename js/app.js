@@ -883,6 +883,15 @@ function initNavigation() {
         } else {
             viewScale.classList.add('hidden');
             viewExample.classList.remove('hidden');
+
+            // Force restart animations for Example View
+            const animatedElements = viewExample.querySelectorAll('.card-animate');
+            animatedElements.forEach(el => {
+                el.style.animation = 'none';
+                el.offsetHeight; /* trigger reflow */
+                el.style.animation = '';
+            });
+
             // Resize chart when it becomes visible
             if (window.stockChart) {
                 setTimeout(() => window.stockChart.reflow(), 10);

@@ -161,8 +161,7 @@ input[type=range]::-webkit-slider-runnable-track {
 .masonry-item {
     break-inside: avoid;
     margin-bottom: 1.5rem;
-    animation: fadeInUp 0.6s ease-out forwards;
-    opacity: 0;
+    animation: fadeInUp 0.6s ease-out both;
 }
 
 /* Dialog Animation */
@@ -215,8 +214,7 @@ dialog::backdrop {
 }
 
 .card-animate {
-    animation: fadeInUp 0.6s ease-out forwards;
-    opacity: 0;
+    animation: fadeInUp 0.6s ease-out both;
 }
 
 .card-animate-delay-1 {
