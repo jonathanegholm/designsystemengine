@@ -172,8 +172,226 @@ const dom = {
     btnShadowLarge: document.getElementById('btn-shadow-large'),
     // Semantic
     positiveSelect: document.getElementById('positive-preset-select'),
-    negativeSelect: document.getElementById('negative-preset-select')
+    // Contrast Checker
+    btnContrast: document.getElementById('btn-contrast'),
+    mobBtnContrast: document.getElementById('mob-btn-contrast'),
+    btnCloseContrast: document.getElementById('btn-close-contrast'),
+    contrastDialog: document.getElementById('contrast-dialog'),
+    contrastBadge: document.getElementById('contrast-badge'),
+    gridContent: document.getElementById('contrast-grid-content'),
+    gridInteractive: document.getElementById('contrast-grid-interactive'),
 };
+
+// --- CONTRAST CHECKER ---
+// WCAG 2.2 AA requires 4.5:1 for normal text, 3:1 for large text/ui components
+const CONTRAST_PAIRS = {
+    content: [
+        { name: 'Base', bgVar: '--background', fgVar: '--foreground', label: 'Sample Text' },
+        { name: 'Card', bgVar: '--card', fgVar: '--card-foreground', label: 'Sample Text' },
+        { name: 'Popover', bgVar: '--popover', fgVar: '--popover-foreground', label: 'Sample Text' },
+        { name: 'Muted', bgVar: '--muted', fgVar: '--muted-foreground', label: 'Sample Text' }
+    ],
+    interactive: [
+        { name: 'Primary', bgVar: '--primary', fgVar: '--primary-foreground', label: 'Button Text' },
+        { name: 'Secondary', bgVar: '--secondary', fgVar: '--secondary-foreground', label: 'Button Text' },
+        { name: 'Accent', bgVar: '--accent', fgVar: '--accent-foreground', label: 'Accent Text' },
+        { name: 'Destructive', bgVar: '--destructive', fgVar: '--destructive-foreground', label: 'Error Text' }
+    ]
+};
+
+function getComputedColor(varName) {
+    // Get the value from the root style (which might be oklch(...))
+    // We need to resolve this to RGB for our contrast calculator
+    const val = getComputedStyle(root).getPropertyValue(varName).trim();
+    if (!val) return { r: 255, g: 255, b: 255 }; // Fallback
+
+    // If it's oklch, parse it
+    // Format: oklch(l c h) or oklch(l c h / alpha)
+    const oklchMatch = val.match(/oklch\(([\d\.]+)\s+([\d\.]+)\s+([\d\.]+)(?:\s*\/\s*[\d\.]+)?\)/);
+    if (oklchMatch) {
+        return oklchToSrgb(parseFloat(oklchMatch[1]), parseFloat(oklchMatch[2]), parseFloat(oklchMatch[3]));
+    }
+
+    // If it's HSL (existing surfaces uses HSL format: "H S% L%")
+    // HSL logic for Surfaces is a bit unique in this codebase, stored as raw numbers "0 0% 100%"
+    // But getComputedStyle might return it differently or if it's assigned to a var that expects color function wrapper
+    // The codebase surfaces sets --background to "H S L". so we need to wrap it if we use it directly, 
+    // BUT wait, --background is used in `background-color: hsl(var(--background))` usually.
+    // Let's check how it is used. `root.style.setProperty('--background', bg);` where bg is "0 0% 100%"
+    // So the variable itself is just the channels.
+
+    // However, our oklch logic sets full strings "oklch(...)".
+
+    // Let's assume for checking, we might need to try parsing "H S L"
+    const spaces = val.split(' ');
+    if (spaces.length >= 3 && !val.includes('oklch')) {
+        // Assume HSL channels
+        // We'll need a quick HSL to RGB helper or use a canvas/browser trick. 
+        // Since we are in browser, we can use a temporary element.
+        return resolveColorToRgb(`hsl(${val})`);
+    }
+
+    return resolveColorToRgb(val);
+}
+
+function resolveColorToRgb(colorStr) {
+    // Determine if it is a variable that needs wrapping
+    // If the string is just space separated numbers, it might be the tailwind var pattern
+    if (!colorStr.startsWith('#') && !colorStr.startsWith('rgb') && !colorStr.startsWith('hsl') && !colorStr.startsWith('oklch')) {
+        // It's likely the "H S L" or "L C H" string content from the variable
+        // Try wrapping in hsl() first as that is the legacy part
+        const temp = document.createElement('div');
+        temp.style.color = `hsl(${colorStr})`;
+        document.body.appendChild(temp);
+        const style = getComputedStyle(temp);
+        const rgb = style.color; // Returns rgb(r, g, b)
+        document.body.removeChild(temp);
+
+        if (rgb && rgb !== '') return parseRgbString(rgb);
+    }
+
+    const temp = document.createElement('div');
+    temp.style.color = colorStr;
+    document.body.appendChild(temp);
+    const style = getComputedStyle(temp);
+    const rgb = style.color;
+    document.body.removeChild(temp);
+    return parseRgbString(rgb);
+}
+
+function parseRgbString(str) {
+    const match = str.match(/\d+/g);
+    if (!match || match.length < 3) return { r: 255, g: 255, b: 255 };
+    return { r: Number(match[0]), g: Number(match[1]), b: Number(match[2]) };
+}
+
+function checkAllContrasts() {
+    let failures = 0;
+    const results = { content: [], interactive: [] };
+
+    // Helper process function
+    const processPair = (pair) => {
+        const bgRgb = getComputedColor(pair.bgVar);
+        const fgRgb = getComputedColor(pair.fgVar);
+
+        // We also need the raw strings for the visual preview in the modal
+        const bgStr = getComputedStyle(root).getPropertyValue(pair.bgVar).trim();
+        const fgStr = getComputedStyle(root).getPropertyValue(pair.fgVar).trim();
+
+        // Handle the "raw channels" case for CSS variables for display purposes
+        // if bgStr has no '(', wrap it based on heuristic? 
+        // Actually, for the "style" attribute in the modal, we can just use `var(${pair.bgVar})` 
+        // providing the CSS handles the variable usage correctly.
+        // BUT, if the variable is just "0 0% 100%", `background: var(--background)` fails in standard CSS unless inside `hsl()`.
+        // The codebase uses `hsl(var(--background))` in Tailwind config presumably.
+        // To be safe for the "style" tag, we should resolve the full computed value.
+        const bgStyle = `rgb(${bgRgb.r}, ${bgRgb.g}, ${bgRgb.b})`;
+        const fgStyle = `rgb(${fgRgb.r}, ${fgRgb.g}, ${fgRgb.b})`;
+
+        const ratio = getContrast(bgRgb, fgRgb);
+        const passed = ratio >= 4.5;
+        if (!passed) failures++;
+
+        return { ...pair, ratio, passed, bgStyle, fgStyle };
+    };
+
+    CONTRAST_PAIRS.content.forEach(p => results.content.push(processPair(p)));
+    CONTRAST_PAIRS.interactive.forEach(p => results.interactive.push(processPair(p)));
+
+    updateContrastBadge(failures);
+    renderContrastModalContent(results);
+}
+
+function updateContrastBadge(count) {
+    if (!dom.contrastBadge) return;
+    dom.contrastBadge.innerText = count;
+    if (count > 0) {
+        dom.contrastBadge.classList.remove('hidden');
+        dom.btnContrast.classList.add('text-destructive');
+    } else {
+        dom.contrastBadge.classList.add('hidden');
+        dom.btnContrast.classList.remove('text-destructive');
+    }
+}
+
+function renderContrastModalContent(results) {
+    const createCard = (item) => `
+        <div class="rounded-lg border p-4 flex items-center justify-between gap-4 relative overflow-hidden group">
+            <div class="space-y-1 z-10">
+                <div class="font-semibold text-sm flex items-center gap-2">
+                    ${item.name}
+                    ${!item.passed ? '<i data-lucide="alert-triangle" class="w-3 h-3 text-red-500"></i>' : ''}
+                </div>
+                <div class="text-xs text-muted-foreground font-mono">
+                   ${item.passed ? 'Pass' : 'Fail'}
+                </div>
+            </div>
+
+            <div class="flex items-center gap-6 z-10">
+                 <!-- Preview Block -->
+                <div class="w-32 h-16 rounded-md shadow-sm border flex items-center justify-center relative overflow-hidden" 
+                     style="background-color: ${item.bgStyle}; color: ${item.fgStyle}">
+                     <span class="text-lg font-bold">Aa</span>
+                </div>
+                
+                <div class="text-right min-w-[60px]">
+                    <div class="text-2xl font-bold font-mono ${item.passed ? 'text-emerald-600' : 'text-red-600'}">
+                        ${item.ratio.toFixed(2)}
+                    </div>
+                    <div class="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Ratio</div>
+                </div>
+            </div>
+            
+            ${!item.passed ? '<div class="absolute inset-0 bg-red-50 dark:bg-red-900/10 opacity-50 z-0 pointer-events-none"></div>' : ''}
+        </div>
+    `;
+
+    if (dom.gridContent) dom.gridContent.innerHTML = results.content.map(createCard).join('');
+    if (dom.gridInteractive) dom.gridInteractive.innerHTML = results.interactive.map(createCard).join('');
+    lucide.createIcons();
+}
+
+// Ensure contrasting colors are checked whenever UI updates
+// We hook into the existing updateUI function by appending logic at the end of it
+// But since we can't easily modify the function body of updateUI without replacing it fully,
+// we will rely on the custom event 'colorChange' which is dispatched at the end of updateUI!
+window.addEventListener('colorChange', () => {
+    // Use timeout to let DOM styles settle if necessary
+    setTimeout(checkAllContrasts, 50);
+});
+// Also listen for surface changes which might not trigger colorChange depending on implementation
+// The logic for Surface changes calls `updateSurface()` then `renderSurfaces()`. 
+// We should check if we can modify `updateSurface` or just poll. 
+// Actually, `applySurface` and `setSurfaceLevel` are global. We can wrap them?
+// Or just add a MutationObserver on the root style attribute?
+// Let's add an invocation in the toggleTheme and resetConfiguration as well.
+
+const observer = new MutationObserver(() => {
+    checkAllContrasts();
+});
+observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'style'] });
+
+
+if (dom.btnContrast) {
+    dom.btnContrast.addEventListener('click', () => {
+        checkAllContrasts(); // Run fresh check
+        dom.contrastDialog.showModal();
+    });
+}
+if (dom.mobBtnContrast) {
+    dom.mobBtnContrast.addEventListener('click', () => {
+        checkAllContrasts();
+        dom.contrastDialog.showModal();
+    });
+}
+if (dom.btnCloseContrast) {
+    dom.btnCloseContrast.addEventListener('click', () => {
+        dom.contrastDialog.close();
+    });
+}
+
+// Initial Check
+setTimeout(checkAllContrasts, 500);
 
 // --- CORE UI UPDATES ---
 function showToast(msg, isError = false) {
