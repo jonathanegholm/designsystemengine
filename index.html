@@ -340,9 +340,39 @@
                             </div>
                         </div>
 
-
-
-
+                        <div
+                            class="masonry-item rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden">
+                            <div class="p-6 pb-2">
+                                <h3 class="font-semibold leading-none tracking-tight mb-1">Market Activity</h3>
+                                <p class="text-sm text-muted-foreground mb-4">Real-time market data.</p>
+                            </div>
+                            <div class="relative h-[200px] w-full" id="candlestick-container"></div>
+                            <div class="p-4 border-t bg-muted/20">
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-2 h-2 rounded-full bg-[var(--color-positive-500)]"></div>
+                                            <span class="text-xs font-medium">AAPL</span>
+                                        </div>
+                                        <span class="text-xs text-muted-foreground text-positive">+1.2%</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-2 h-2 rounded-full bg-[var(--color-negative-500)]"></div>
+                                            <span class="text-xs font-medium">GOOGL</span>
+                                        </div>
+                                        <span class="text-xs text-muted-foreground text-negative">-0.8%</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-2 h-2 rounded-full bg-[var(--color-positive-500)]"></div>
+                                            <span class="text-xs font-medium">MSFT</span>
+                                        </div>
+                                        <span class="text-xs text-muted-foreground text-positive">+0.5%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="masonry-item rounded-xl border bg-card text-card-foreground shadow-sm">
                             <div class="p-6 space-y-4">
@@ -561,6 +591,37 @@
                                         <span
                                             class="pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform translate-x-0"></span>
                                     </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="masonry-item rounded-xl border bg-card text-card-foreground shadow-sm p-6">
+                            <h3 class="font-semibold leading-none tracking-tight mb-4">System Alerts</h3>
+                            <div class="space-y-4">
+                                <div class="rounded-lg border px-4 py-3"
+                                    style="background-color: hsl(var(--destructive) / 0.1); border-color: hsl(var(--destructive) / 0.2); color: hsl(var(--destructive));">
+                                    <div class="flex items-start gap-3">
+                                        <i data-lucide="alert-circle" class="h-5 w-5 mt-0.5"></i>
+                                        <div class="space-y-1">
+                                            <h5 class="font-medium leading-none tracking-tight">Critical Error</h5>
+                                            <p class="text-sm opacity-90">
+                                                Unable to connect to server. Please try again.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="rounded-lg border px-4 py-3 bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-500">
+                                    <div class="flex items-start gap-3">
+                                        <i data-lucide="alert-triangle" class="h-5 w-5 mt-0.5"></i>
+                                        <div class="space-y-1">
+                                            <h5 class="font-medium leading-none tracking-tight">System Warning</h5>
+                                            <p class="text-sm opacity-90">
+                                                Disk space is running low on your instance.
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
