@@ -121,6 +121,40 @@ function getContrast(rgb1, rgb2) {
     return (l2 + 0.05) / (l1 + 0.05);
 }
 
+/**
+ * Shared logic for chroma adjustment based on lightness
+ */
+function getAdjustedChroma(l, baseChroma) {
+    let adjChroma = baseChroma;
+    if (l > 0.92) adjChroma = baseChroma * 0.5;
+    if (l < 0.2) adjChroma = baseChroma * 0.8;
+    return adjChroma;
+}
+
+/**
+ * Shared contrast logic to determine if white or black text should be used
+ * and returns the resulting ratio.
+ */
+function getContrastOutcome(l, c, h) {
+    const adjChroma = getAdjustedChroma(l, c);
+    const rgb = oklchToSrgb(l, adjChroma, h);
+    const white = { r: 255, g: 255, b: 255 };
+    const black = { r: 0, g: 0, b: 0 };
+    const contrastWhite = getContrast(rgb, white);
+    const contrastBlack = getContrast(rgb, black);
+
+    if (contrastWhite >= 4.5) {
+        return { useWhite: true, ratio: contrastWhite };
+    } else if (contrastBlack >= 4.5) {
+        return { useWhite: false, ratio: contrastBlack };
+    } else {
+        // Fallback to highest available if AA can't be met
+        return contrastWhite > contrastBlack
+            ? { useWhite: true, ratio: contrastWhite }
+            : { useWhite: false, ratio: contrastBlack };
+    }
+}
+
 // --- DOM REFS ---
 const root = document.documentElement;
 const dom = {
@@ -431,14 +465,10 @@ function copyToClipboard(text, msg = 'Copied!') {
 function updateUI() {
     currentScaleValues = {};
     STOPS.forEach(stop => {
-        let adjChroma = state.chroma;
-        if (stop.l > 0.92) adjChroma = state.chroma * 0.5;
-        if (stop.l < 0.2) adjChroma = state.chroma * 0.8;
+        const adjChroma = getAdjustedChroma(stop.l, state.chroma);
         const val = `oklch(${stop.l} ${adjChroma.toFixed(3)} ${state.hue})`;
         root.style.setProperty(`--color-${stop.name}`, val);
         currentScaleValues[stop.name] = val;
-
-
     });
 
     // Semantic Colors
@@ -449,9 +479,7 @@ function updateUI() {
 
     const generateSemanticVars = (preset, prefix) => {
         STOPS.forEach(stop => {
-            let adjChroma = preset.c;
-            if (stop.l > 0.92) adjChroma = preset.c * 0.5;
-            if (stop.l < 0.2) adjChroma = preset.c * 0.8;
+            const adjChroma = getAdjustedChroma(stop.l, preset.c);
             const val = `oklch(${stop.l} ${adjChroma.toFixed(3)} ${preset.h})`;
             root.style.setProperty(`--color-${prefix}-${stop.name}`, val);
         });
@@ -485,21 +513,10 @@ function updateUI() {
     updateSemanticClasses();
 
     // Map Primary to Brand (Color 600)
-    // We calculate contrast against 600 to determine foreground
+    // We calculate contrast against 600 using the shared outcome logic
     const brandStop = STOPS.find(s => s.name === '600');
-    let adjChroma = state.chroma;
-    // Logic from renderScale loop for consistency
-    if (brandStop.l > 0.92) adjChroma = state.chroma * 0.5;
-    if (brandStop.l < 0.2) adjChroma = state.chroma * 0.8;
-
-    // Check contrast for 600
-    const rgb600 = oklchToSrgb(brandStop.l, adjChroma, state.hue);
-    const contrastWhite = getContrast(rgb600, { r: 255, g: 255, b: 255 });
-    const contrastBlack = getContrast(rgb600, { r: 0, g: 0, b: 0 });
-
-    // Choose Foreground
-    const useWhite = contrastWhite >= 4.5 || contrastWhite > contrastBlack;
-    const fgVal = useWhite ? '0 0% 100%' : '0 0% 0%';
+    const outcome = getContrastOutcome(brandStop.l, state.chroma, state.hue);
+    const fgVal = outcome.useWhite ? '0 0% 100%' : '0 0% 0%';
 
     root.style.setProperty('--primary', 'var(--color-600)');
     root.style.setProperty('--primary-foreground', fgVal);
@@ -574,36 +591,10 @@ function renderScale() {
     dom.scale.innerHTML = STOPS.map(stop => {
         const isNearest = nearestStop && stop.name === nearestStop.name;
 
-        // Calculate Contrast
-        let adjChroma = state.chroma;
-        if (stop.l > 0.92) adjChroma = state.chroma * 0.5;
-        if (stop.l < 0.2) adjChroma = state.chroma * 0.8;
-        const rgb = oklchToSrgb(stop.l, adjChroma, state.hue);
-
-        const white = { r: 255, g: 255, b: 255 };
-        const black = { r: 0, g: 0, b: 0 };
-        const contrastWhite = getContrast(rgb, white);
-        const contrastBlack = getContrast(rgb, black);
-
-        let useWhite = false;
-        let ratio = 0;
-
-        if (contrastWhite >= 4.5) {
-            useWhite = true;
-            ratio = contrastWhite;
-        } else if (contrastBlack >= 4.5) {
-            useWhite = false;
-            ratio = contrastBlack;
-        } else {
-            // Pick the best available
-            if (contrastWhite > contrastBlack) {
-                useWhite = true;
-                ratio = contrastWhite;
-            } else {
-                useWhite = false;
-                ratio = contrastBlack;
-            }
-        }
+        // Calculate Contrast using shared logic
+        const outcome = getContrastOutcome(stop.l, state.chroma, state.hue);
+        const useWhite = outcome.useWhite;
+        const ratio = outcome.ratio;
 
         const textClass = useWhite ? 'text-white/70' : 'text-black/70';
         const iconClass = useWhite ? 'text-white/50' : 'text-black/50';
@@ -1472,3 +1463,19 @@ function simulateLivePrice() {
 
 // Start simulation
 simulateLivePrice();
+
+// --- EXAMPLE PAGE MOBILE MENU ---
+const btnExampleMore = document.getElementById('btn-example-more');
+const menuExampleMore = document.getElementById('example-more-menu');
+
+if (btnExampleMore && menuExampleMore) {
+    btnExampleMore.addEventListener('click', (e) => {
+        e.stopPropagation();
+        menuExampleMore.classList.toggle('hidden');
+    });
+
+    window.addEventListener('click', () => {
+        menuExampleMore.classList.add('hidden');
+    });
+}
+
