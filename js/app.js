@@ -1431,3 +1431,44 @@ function oklchToHex(l, c, h) {
     const rgb = oklchToSrgb(l, c, h);
     return `#${((1 << 24) + (rgb.r << 16) + (rgb.g << 8) + rgb.b).toString(16).slice(1)}`;
 }
+
+// --- LIVE PRICING SIMULATION ---
+function simulateLivePrice() {
+    const elPrice = document.getElementById('stock-price');
+    const elChange = document.getElementById('stock-change');
+    const elPercent = document.getElementById('stock-change-percent');
+    const elContainer = document.getElementById('stock-change-container');
+
+    if (!elPrice || !elChange || !elPercent || !elContainer) return;
+
+    let currentPrice = 192.45;
+    let basePrice = 190.07; // Previous close approximation
+
+    setInterval(() => {
+        // Random fluctuation between -0.15 and +0.15
+        const change = (Math.random() * 0.3) - 0.15;
+        currentPrice += change;
+
+        // Calculate diffs
+        const diff = currentPrice - basePrice;
+        const percent = (diff / basePrice) * 100;
+
+        // Format
+        elPrice.innerText = currentPrice.toFixed(2);
+        elChange.innerText = (diff >= 0 ? '+' : '') + diff.toFixed(2);
+        elPercent.innerText = `(${(diff >= 0 ? '+' : '') + percent.toFixed(2)}%)`;
+
+        // Update Colors
+        if (diff >= 0) {
+            elContainer.classList.remove('text-negative', 'text-danger');
+            elContainer.classList.add('text-positive');
+        } else {
+            elContainer.classList.remove('text-positive');
+            elContainer.classList.add('text-negative');
+        }
+
+    }, 3000); // Update every 3 seconds
+}
+
+// Start simulation
+simulateLivePrice();

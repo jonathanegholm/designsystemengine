@@ -751,13 +751,14 @@
 
                             <!-- Price Section -->
                             <div class="flex items-baseline gap-4 pt-2">
-                                <div class="text-4xl font-bold tracking-tighter mono">192.45 <span
+                                <div class="text-4xl font-bold tracking-tighter mono"><span
+                                        id="stock-price">192.45</span> <span
                                         class="text-lg font-medium text-muted-foreground">USD</span></div>
                                 <div class="flex items-center gap-2">
-                                    <div
-                                        class="flex items-baseline gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium text-sm">
-                                        <span>+2.38</span>
-                                        <span>(+1.24%)</span>
+                                    <div id="stock-change-container"
+                                        class="flex items-baseline gap-1.5 text-positive font-medium text-sm">
+                                        <span id="stock-change">+2.38</span>
+                                        <span id="stock-change-percent">(+1.24%)</span>
                                     </div>
                                     <span class="text-sm text-muted-foreground font-medium">Today</span>
                                 </div>
