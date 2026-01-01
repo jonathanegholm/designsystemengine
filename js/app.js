@@ -883,6 +883,12 @@ function initNavigation() {
         } else {
             viewScale.classList.add('hidden');
             viewExample.classList.remove('hidden');
+
+            // Critical Fix: Remove any inline styles that might hide content
+            viewExample.style.removeProperty('height');
+            viewExample.style.removeProperty('overflow');
+            viewExample.style.removeProperty('display');
+
             // Resize chart when it becomes visible
             if (window.stockChart) {
                 setTimeout(() => window.stockChart.reflow(), 10);
