@@ -516,7 +516,7 @@ function updateUI() {
     // We calculate contrast against 600 using the shared outcome logic
     const brandStop = STOPS.find(s => s.name === '600');
     const outcome = getContrastOutcome(brandStop.l, state.chroma, state.hue);
-    const fgVal = outcome.useWhite ? '0 0% 100%' : '0 0% 0%';
+    const fgVal = outcome.useWhite ? '0, 0%, 100%' : '0, 0%, 0%';
 
     root.style.setProperty('--primary', 'var(--color-600)');
     root.style.setProperty('--primary-foreground', fgVal);

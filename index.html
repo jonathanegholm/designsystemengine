@@ -315,8 +315,8 @@
                             <i data-lucide="braces" class="mr-2 h-4 w-4"></i> Copy JSON
                         </button>
 
-                        <button id="btn-save-modal-trigger"
-                            class="inline-flex w-full md:w-auto items-center justify-center rounded-md text-sm font-medium bg-[var(--color-600)] text-[hsl(var(--primary-foreground))] shadow hover:bg-[var(--color-700)] h-9 px-4 transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50">
+                        <button id="btn-save-modal-trigger" style="color: hsl(var(--primary-foreground));"
+                            class="inline-flex w-full md:w-auto items-center justify-center rounded-md text-sm font-medium bg-[var(--color-600)] shadow hover:bg-[var(--color-700)] h-9 px-4 transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50">
                             <i data-lucide="save" class="mr-2 h-4 w-4"></i> Save Scale
                         </button>
                     </div>
@@ -441,8 +441,8 @@
                                 <div class="space-y-2">
                                     <input type="email" placeholder="name@example.com"
                                         class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" />
-                                    <button
-                                        class="inline-flex w-full items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-[var(--color-600)] text-[hsl(var(--primary-foreground))] hover:bg-[var(--color-700)] h-9 px-4 py-2 shadow">
+                                    <button style="color: hsl(var(--primary-foreground));"
+                                        class="inline-flex w-full items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-[var(--color-600)] hover:bg-[var(--color-700)] h-9 px-4 py-2 shadow">
                                         Sign In with Email
                                     </button>
                                 </div>
@@ -462,8 +462,8 @@
                             </div>
                         </div>
 
-                        <div class="masonry-item rounded-xl shadow-lg text-[hsl(var(--primary-foreground))] p-6 relative overflow-hidden h-48 flex flex-col justify-between"
-                            style="background: linear-gradient(135deg, var(--color-600), var(--color-900))">
+                        <div class="masonry-item rounded-xl shadow-lg p-6 relative overflow-hidden h-48 flex flex-col justify-between"
+                            style="background: linear-gradient(135deg, var(--color-600), var(--color-900)); color: hsl(var(--primary-foreground));">
                             <div class="absolute inset-0 opacity-20"
                                 style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 20px 20px;">
                             </div>
@@ -526,8 +526,8 @@
                                     </div>
                                 </div>
                                 <div class="flex justify-end">
-                                    <div
-                                        class="bg-[var(--color-600)] text-[hsl(var(--primary-foreground))] text-xs px-3 py-2 rounded-lg rounded-tr-none max-w-[80%] shadow-sm">
+                                    <div style="color: hsl(var(--primary-foreground));"
+                                        class="bg-[var(--color-600)] text-xs px-3 py-2 rounded-lg rounded-tr-none max-w-[80%] shadow-sm">
                                         Just exported them. Check the dashboard!
                                     </div>
                                 </div>
@@ -536,8 +536,8 @@
                                 <div class="flex gap-2">
                                     <input type="text" placeholder="Type a message..."
                                         class="flex-1 bg-muted/50 border-0 rounded-full text-xs px-3 h-8 focus:ring-1 focus:ring-[var(--color-400)] outline-none">
-                                    <button
-                                        class="w-8 h-8 rounded-full bg-[var(--color-600)] flex items-center justify-center text-[hsl(var(--primary-foreground))] hover:opacity-90 transition-opacity">
+                                    <button style="color: hsl(var(--primary-foreground));"
+                                        class="w-8 h-8 rounded-full bg-[var(--color-600)] flex items-center justify-center hover:opacity-90 transition-opacity">
                                         <i data-lucide="send" class="w-3.5 h-3.5"></i>
                                     </button>
                                 </div>
@@ -602,8 +602,8 @@
                                 <span class="text-muted-foreground p-2">30</span>
                                 <span class="p-2 hover:bg-accent rounded cursor-pointer">1</span>
                                 <span class="p-2 hover:bg-accent rounded cursor-pointer">2</span>
-                                <span
-                                    class="p-2 bg-[var(--color-600)] text-[hsl(var(--primary-foreground))] rounded font-medium shadow-sm">3</span>
+                                <span style="color: hsl(var(--primary-foreground));"
+                                    class="p-2 bg-[var(--color-600)] rounded font-medium shadow-sm">3</span>
                                 <span class="p-2 hover:bg-accent rounded cursor-pointer">4</span>
                                 <span class="p-2 hover:bg-accent rounded cursor-pointer">5</span>
                                 <span class="p-2 hover:bg-accent rounded cursor-pointer">6</span>
@@ -703,11 +703,6 @@
 
                             <!-- Mobile Actions -->
                             <div class="flex items-center gap-2 md:hidden">
-                                <!-- Mobile Trade Button -->
-                                <button
-                                    class="inline-flex items-center justify-center rounded-md text-sm font-medium bg-[var(--color-600)] text-[hsl(var(--primary-foreground))] shadow hover:bg-[var(--color-700)] h-9 px-4 transition-all active:scale-95">
-                                    Trade
-                                </button>
                                 <!-- More Menu Trigger -->
                                 <div class="relative">
                                     <button id="btn-example-more"
@@ -731,6 +726,11 @@
                                         </div>
                                     </div>
                                 </div>
+                                <!-- Mobile Trade Button -->
+                                <button
+                                    class="inline-flex items-center justify-center rounded-md text-sm font-medium bg-[var(--color-600)] text-[hsl(var(--primary-foreground))] shadow hover:bg-[var(--color-700)] h-9 px-4 transition-all active:scale-95">
+                                    Trade
+                                </button>
                             </div>
                         </div>
 
@@ -824,8 +824,8 @@
                         </button>
 
                         <!-- Primary Trade Button -->
-                        <button
-                            class="inline-flex items-center justify-center rounded-md text-sm font-medium bg-[var(--color-600)] text-[hsl(var(--primary-foreground))] shadow hover:bg-[var(--color-700)] h-9 px-6 transition-all active:scale-95">
+                        <button style="color: hsl(var(--primary-foreground));"
+                            class="inline-flex items-center justify-center rounded-md text-sm font-medium bg-[var(--color-600)] shadow hover:bg-[var(--color-700)] h-9 px-6 transition-all active:scale-95">
                             Trade
                         </button>
                     </div>
