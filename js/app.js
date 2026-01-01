@@ -499,7 +499,7 @@ function updateUI() {
 
     // Choose Foreground
     const useWhite = contrastWhite >= 4.5 || contrastWhite > contrastBlack;
-    const fgVal = useWhite ? 'var(--color-50)' : 'var(--color-900)';
+    const fgVal = useWhite ? '#ffffff' : '#000000';
 
     root.style.setProperty('--primary', 'var(--color-600)');
     root.style.setProperty('--primary-foreground', fgVal);
