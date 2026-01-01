@@ -46,6 +46,12 @@ const SURFACES = [
         dark: { bg: '0 0% 3.9%', card: '0 0% 3.9%' },
         raised: { lightBg: '0 0% 96%', darkBg: '0 0% 3.9%', darkCard: '0 0% 9%' }
     },
+    {
+        name: 'Color',
+        dynamic: true,
+        light: { bg: '0 0% 100%', card: '0 0% 100%' }, // Dynamic placeholders
+        dark: { bg: '0 0% 0%', card: '0 0% 0%' }
+    }
 
 ];
 
@@ -153,6 +159,29 @@ function getContrastOutcome(l, c, h) {
             ? { useWhite: true, ratio: contrastWhite }
             : { useWhite: false, ratio: contrastBlack };
     }
+}
+
+function rgbToHsl(r, g, b) {
+    r /= 255;
+    g /= 255;
+    b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h, s, l = (max + min) / 2;
+
+    if (max === min) {
+        h = s = 0; // achromatic
+    } else {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+    }
+
+    return `${(h * 360).toFixed(1)} ${(s * 100).toFixed(1)}% ${(l * 100).toFixed(1)}%`;
 }
 
 // --- DOM REFS ---
@@ -521,6 +550,10 @@ function updateUI() {
     root.style.setProperty('--primary', 'var(--color-600)');
     root.style.setProperty('--primary-foreground', fgVal);
 
+    if (currentSurface.name === 'Color') {
+        updateSurface();
+    }
+
     window.dispatchEvent(new CustomEvent('colorChange', { detail: { hue: state.hue, chroma: state.chroma } }));
 }
 
@@ -731,6 +764,11 @@ function renderSurfaces() {
         const activeClass = isActive ? 'border-[var(--color-600)] text-[var(--color-600)] border-2' : 'hover:bg-accent border-input';
 
         let dotColor = `hsl(${s.dark.bg})`;
+        if (s.dynamic) {
+            const adjChroma = getAdjustedChroma(0.05, state.chroma); // Dark bg simulation
+            const rgb = oklchToSrgb(0.05, adjChroma, state.hue);
+            dotColor = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+        }
 
 
         return `<button onclick="applySurface('${s.name}')" class="flex items-center gap-2 px-2.5 py-1 rounded-md border text-xs transition-colors ${activeClass}"><div class="w-2.5 h-2.5 rounded-full border border-white/20" style="background-color: ${dotColor}"></div>${s.name}</button>`
@@ -758,6 +796,40 @@ function updateSurface() {
         } else {
             bg = currentSurface.raised.lightBg; // 100 level
             card = '0 0% 100%'; // Pure White
+        }
+    }
+
+    if (currentSurface.dynamic) {
+        // Dynamic "Color" Logic
+        // Calculate Light Mode Colors (equivalent to ~98 lightness, ~95 for raised)
+        const lightL = state.surfaceLevel === 'raised' ? 0.96 : 0.98;
+        const lightChroma = getAdjustedChroma(lightL, state.chroma);
+        const lightRgb = oklchToSrgb(lightL, lightChroma, state.hue);
+        const lightHsl = rgbToHsl(lightRgb.r, lightRgb.g, lightRgb.b);
+
+        // Calculate Dark Mode Colors (equivalent to ~4 lightness, ~10 for raised)
+        const darkL = state.surfaceLevel === 'raised' ? 0.08 : 0.04;
+        const darkChroma = getAdjustedChroma(darkL, state.chroma);
+        const darkRgb = oklchToSrgb(darkL, darkChroma, state.hue);
+        const darkHsl = rgbToHsl(darkRgb.r, darkRgb.g, darkRgb.b);
+
+        // Card Colors
+        const lightCardL = 1.0;
+        const lightCardRgb = oklchToSrgb(lightCardL, 0, 0); // Pure white
+        const lightCardHsl = rgbToHsl(lightCardRgb.r, lightCardRgb.g, lightCardRgb.b);
+
+        const darkCardL = state.surfaceLevel === 'raised' ? 0.05 : 0.05;
+        const darkCardChroma = getAdjustedChroma(darkCardL, state.chroma);
+        const darkCardRgb = oklchToSrgb(darkCardL, darkCardChroma, state.hue);
+        const darkCardHsl = rgbToHsl(darkCardRgb.r, darkCardRgb.g, darkCardRgb.b);
+
+
+        if (isDark) {
+            bg = darkHsl;
+            card = darkCardHsl;
+        } else {
+            bg = lightHsl;
+            card = lightCardHsl;
         }
     }
 
