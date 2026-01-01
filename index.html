@@ -643,7 +643,7 @@
                                 <p class="text-sm text-muted-foreground mt-1">Consumer Electronics • Cupertino, CA</p>
                             </div>
                         </div>
-                        <div class="flex items-center gap-6 ml-20 mt-2">
+                        <div class="flex items-center gap-6 ml-20 mt-2 flex-wrap">
                             <div>
                                 <span class="text-xs uppercase text-muted-foreground font-semibold">Market
                                     Cap</span>
@@ -666,7 +666,7 @@
                         </div>
                     </div>
 
-                    <div class="flex flex-col items-end">
+                    <div class="flex flex-col items-start md:items-end">
 
 
                         <div class="text-2xl font-bold tracking-tight mono">192.45 USD</div>
@@ -684,6 +684,112 @@
                 <div class="overflow-hidden min-h-[500px] relative">
                     <!-- Advanced Stock Chart (Highcharts) -->
                     <div id="stock-chart-container" class="w-full h-[500px]"></div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 card-animate card-animate-delay-2">
+                    <div class="lg:col-span-2 space-y-6">
+                        <div class="rounded-xl border bg-card text-card-foreground shadow-sm p-6">
+                            <h3 class="font-semibold leading-none tracking-tight mb-6">Key Statistics</h3>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-y-6 gap-x-8">
+                                <div>
+                                    <span class="text-xs text-muted-foreground block mb-1">Open</span>
+                                    <span class="font-mono text-sm">191.00</span>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-muted-foreground block mb-1">High</span>
+                                    <span class="font-mono text-sm">193.50</span>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-muted-foreground block mb-1">Low</span>
+                                    <span class="font-mono text-sm">190.25</span>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-muted-foreground block mb-1">Prev Close</span>
+                                    <span class="font-mono text-sm">190.00</span>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-muted-foreground block mb-1">Volume</span>
+                                    <span class="font-mono text-sm">45.2M</span>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-muted-foreground block mb-1">Avg Volume</span>
+                                    <span class="font-mono text-sm">52.1M</span>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-muted-foreground block mb-1">52W High</span>
+                                    <span class="font-mono text-sm">199.62</span>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-muted-foreground block mb-1">52W Low</span>
+                                    <span class="font-mono text-sm">124.17</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="rounded-xl border bg-card text-card-foreground shadow-sm p-6">
+                            <h3 class="font-semibold leading-none tracking-tight mb-4">About Apple Inc.</h3>
+                            <p class="text-sm text-muted-foreground leading-relaxed">
+                                Apple Inc. designs, manufactures, and markets smartphones, personal computers, tablets,
+                                wearables, and accessories worldwide. The company offers iPhone, a line of smartphones;
+                                Mac, a line of personal computers; iPad, a line of multi-purpose tablets; and wearables,
+                                home, and accessories comprising AirPods, Apple TV, Apple Watch, Beats products, and
+                                HomePod.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="rounded-xl border bg-card text-card-foreground shadow-sm p-6">
+                            <h3 class="font-semibold leading-none tracking-tight mb-4">Analyst Rating</h3>
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">Buy</div>
+                                <div class="text-xs text-muted-foreground">Based on 32 analysts</div>
+                            </div>
+                            <div class="flex h-2 w-full rounded-full overflow-hidden">
+                                <div class="w-[60%] bg-emerald-500"></div>
+                                <div class="w-[30%] bg-amber-400"></div>
+                                <div class="w-[10%] bg-red-500"></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] text-muted-foreground mt-2 font-medium">
+                                <span>Buy (60%)</span>
+                                <span>Hold (30%)</span>
+                                <span>Sell (10%)</span>
+                            </div>
+                        </div>
+
+                        <div class="rounded-xl border bg-card text-card-foreground shadow-sm p-6">
+                            <h3 class="font-semibold leading-none tracking-tight mb-4">Latest News</h3>
+                            <div class="space-y-4">
+                                <div class="border-b border-border pb-3 last:border-0 last:pb-0">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-[10px] text-muted-foreground">TechCrunch</span>
+                                        <span class="text-[10px] text-muted-foreground">2h ago</span>
+                                    </div>
+                                    <a href="#"
+                                        class="text-sm font-medium hover:underline decoration-primary line-clamp-2 text-foreground">Apple
+                                        Vision Pro launches with 600+ new apps</a>
+                                </div>
+                                <div class="border-b border-border pb-3 last:border-0 last:pb-0">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-[10px] text-muted-foreground">Bloomberg</span>
+                                        <span class="text-[10px] text-muted-foreground">5h ago</span>
+                                    </div>
+                                    <a href="#"
+                                        class="text-sm font-medium hover:underline decoration-primary line-clamp-2 text-foreground">Apple
+                                        China sales drop as Huawei gains ground</a>
+                                </div>
+                                <div class="border-b border-border pb-3 last:border-0 last:pb-0">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-[10px] text-muted-foreground">Reuters</span>
+                                        <span class="text-[10px] text-muted-foreground">8h ago</span>
+                                    </div>
+                                    <a href="#"
+                                        class="text-sm font-medium hover:underline decoration-primary line-clamp-2 text-foreground">Foxconn
+                                        sees AI server revenue doubling in 2024</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 

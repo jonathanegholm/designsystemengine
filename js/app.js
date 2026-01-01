@@ -934,12 +934,24 @@ function initStockChart() {
         return arr;
     })();
 
+    // Mobile detection
+    const isMobile = window.innerWidth < 768;
+
     Highcharts.stockChart('stock-chart-container', {
         chart: {
             backgroundColor: 'transparent',
             style: { fontFamily: 'inherit' }
         },
-        rangeSelector: { selected: 1 },
+        rangeSelector: {
+            enabled: !isMobile,
+            selected: 1
+        },
+        navigator: {
+            enabled: !isMobile
+        },
+        scrollbar: {
+            enabled: !isMobile
+        },
         credits: { enabled: false },
         title: { text: '' },
         yAxis: [{
@@ -955,11 +967,28 @@ function initStockChart() {
             upColor: '#10b981',
             upLineColor: '#10b981'
         }],
-        stockTools: { gui: { enabled: true } },
+        stockTools: { gui: { enabled: !isMobile } },
         navigation: { bindingsClassName: 'tools-container' }
     }, function (chart) {
         window.stockChart = chart;
         updateChartTheme();
+    });
+
+    // Handle Resize for breakpoint switching
+    let wasMobile = isMobile;
+    window.addEventListener('resize', () => {
+        const currentMobile = window.innerWidth < 768;
+        if (currentMobile !== wasMobile) {
+            wasMobile = currentMobile;
+            if (window.stockChart) {
+                window.stockChart.update({
+                    rangeSelector: { enabled: !currentMobile },
+                    navigator: { enabled: !currentMobile },
+                    scrollbar: { enabled: !currentMobile },
+                    stockTools: { gui: { enabled: !currentMobile } }
+                });
+            }
+        }
     });
 }
 
