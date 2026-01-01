@@ -688,10 +688,14 @@
 
                         <div class="flex flex-col gap-4">
                             <div>
-                                <div class="flex items-center gap-3">
-                                    <h2 class="text-3xl font-bold tracking-tight">Apple Inc.</h2>
-                                    <span
-                                        class="inline-flex items-center rounded-md border border-transparent bg-muted px-2 py-0.5 text-xs font-mono font-semibold text-muted-foreground uppercase tracking-tight transition-colors">AAPL</span>
+                                <div class="flex items-baseline gap-3">
+                                    <h2 class="text-3xl font-bold tracking-tight leading-none">Apple Inc.</h2>
+                                    <div class="flex gap-2">
+                                        <span
+                                            class="inline-flex items-center rounded-md bg-muted/50 px-2 py-0.5 text-[11px] font-medium text-muted-foreground ring-1 ring-inset ring-border/50 uppercase tracking-wider">AAPL</span>
+                                        <span
+                                            class="inline-flex items-center rounded-md bg-muted/50 px-2 py-0.5 text-[11px] font-medium text-muted-foreground ring-1 ring-inset ring-border/50">Nasdaq</span>
+                                    </div>
                                 </div>
                             </div>
 
@@ -737,12 +741,11 @@
                             <div class="flex items-baseline gap-4 pt-2">
                                 <div class="text-4xl font-bold tracking-tighter mono">192.45 <span
                                         class="text-lg font-medium text-muted-foreground">USD</span></div>
-                                <div class="flex items-center gap-3">
+                                <div class="flex items-center gap-2">
                                     <div
-                                        class="flex items-baseline gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium">
-                                        <span class="text-xl">+2.38</span>
-                                        <span class="text-sm">(+1.24%)</span>
-                                        <i data-lucide="trending-up" class="w-4 h-4 ml-0.5 translate-y-0.5"></i>
+                                        class="flex items-baseline gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium text-sm">
+                                        <span>+2.38</span>
+                                        <span>(+1.24%)</span>
                                     </div>
                                     <span class="text-sm text-muted-foreground font-medium">Today</span>
                                 </div>
@@ -756,7 +759,7 @@
                         <div
                             class="flex items-center gap-2.5 px-3 h-9 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-all cursor-pointer shadow-sm group">
                             <img src="https://flagcdn.com/w20/us.png" alt="US Flag"
-                                class="w-4 h-auto rounded-sm grayscale group-hover:grayscale-0 transition-all" />
+                                class="w-4 h-4 rounded-full object-cover grayscale group-hover:grayscale-0 transition-all" />
                             <span class="text-sm font-medium">Nasdaq</span>
                             <i data-lucide="chevron-down"
                                 class="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors"></i>
