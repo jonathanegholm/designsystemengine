@@ -937,6 +937,12 @@ function initSemanticSelects() {
     populate(dom.warningSelect);
     populate(dom.dangerSelect);
 
+    // Force initial values
+    dom.positiveSelect.value = state.positivePreset;
+    dom.negativeSelect.value = state.negativePreset;
+    dom.warningSelect.value = state.warningPreset;
+    dom.dangerSelect.value = state.dangerPreset;
+
     dom.positiveSelect.addEventListener('change', (e) => {
         state.positivePreset = e.target.value;
         updateUI();
@@ -983,6 +989,12 @@ function resetConfiguration() {
     setShadows('default');
     dom.savedPresetsSelect.value = "";
     dom.btnDeleteTrigger.classList.add('hidden');
+
+    state.positivePreset = 'Emerald';
+    state.negativePreset = 'Red';
+    state.warningPreset = 'Amber';
+    state.dangerPreset = 'Red';
+    updateUI();
 
     const mobileMenu = document.getElementById('mobile-menu');
     if (mobileMenu) mobileMenu.classList.add('hidden');
