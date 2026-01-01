@@ -172,6 +172,7 @@ const dom = {
     btnShadowLarge: document.getElementById('btn-shadow-large'),
     // Semantic
     positiveSelect: document.getElementById('positive-preset-select'),
+    negativeSelect: document.getElementById('negative-preset-select'),
     // Contrast Checker
     btnContrast: document.getElementById('btn-contrast'),
     mobBtnContrast: document.getElementById('mob-btn-contrast'),
