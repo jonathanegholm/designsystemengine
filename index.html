@@ -83,6 +83,10 @@
                     class="inline-flex items-center justify-start rounded-md text-sm font-medium transition-colors hover:text-foreground h-10 px-3 text-muted-foreground hover:bg-transparent w-full">
                     Example page
                 </button>
+                <button id="mob-nav-config"
+                    class="inline-flex items-center justify-start rounded-md text-sm font-medium transition-colors hover:text-foreground h-10 px-3 text-muted-foreground hover:bg-transparent w-full">
+                    Configuration
+                </button>
             </nav>
             <div class="h-px bg-border w-full"></div>
             <div class="flex flex-col gap-2">
@@ -100,7 +104,8 @@
 
     <div class="container mx-auto px-4 py-8 xl:p-10 flex-grow flex flex-col xl:flex-row gap-8">
 
-        <aside class="w-full xl:fixed xl:right-0 xl:top-0 xl:h-screen xl:w-80 xl:z-50 xl:border-l xl:bg-card">
+        <aside id="app-aside"
+            class="hidden md:block xl:fixed xl:right-0 xl:top-0 xl:h-screen xl:w-80 xl:z-50 xl:border-l xl:bg-card w-full">
             <div
                 class="rounded-xl border bg-card text-card-foreground shadow-sm card-animate xl:h-full xl:overflow-y-auto xl:rounded-none xl:border-0 xl:shadow-none">
                 <div class="p-6 space-y-6">

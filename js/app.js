@@ -859,9 +859,14 @@ function initNavigation() {
     const navExample = document.getElementById('nav-example');
     const mobNavScale = document.getElementById('mob-nav-scale');
     const mobNavExample = document.getElementById('mob-nav-example');
+    const mobNavConfig = document.getElementById('mob-nav-config');
     const viewScale = document.getElementById('view-scale');
     const viewExample = document.getElementById('view-example');
+    const appAside = document.getElementById('app-aside');
     const mobileMenu = document.getElementById('mobile-menu');
+
+    // State to track current view
+    let currentView = 'scale';
 
     function updateNavState(el, isActive) {
         if (!el) return;
@@ -875,14 +880,27 @@ function initNavigation() {
     }
 
     function switchTab(view) {
+        currentView = view;
         const isScale = view === 'scale';
+        const isConfig = view === 'config';
+        const isExample = view === 'example';
 
-        if (isScale) {
-            viewScale.classList.remove('hidden');
-            viewExample.classList.add('hidden');
-        } else {
-            viewScale.classList.add('hidden');
-            viewExample.classList.remove('hidden');
+        // Visibility Logic
+        if (isConfig) {
+            // Configuration Mode (Mobile Only)
+            if (appAside) appAside.classList.remove('hidden');
+            if (viewScale) viewScale.classList.add('hidden');
+            if (viewExample) viewExample.classList.add('hidden');
+        } else if (isScale) {
+            // Scale Mode
+            if (appAside) appAside.classList.add('hidden'); // Hide aside on mobile
+            if (viewScale) viewScale.classList.remove('hidden');
+            if (viewExample) viewExample.classList.add('hidden');
+        } else if (isExample) {
+            // Example Mode
+            if (appAside) appAside.classList.add('hidden'); // Hide aside on mobile
+            if (viewScale) viewScale.classList.add('hidden');
+            if (viewExample) viewExample.classList.remove('hidden');
 
             // Critical Fix: Remove any inline styles that might hide content
             viewExample.style.removeProperty('height');
@@ -895,13 +913,18 @@ function initNavigation() {
             }
         }
 
-        // Update Desktop
-        updateNavState(navScale, isScale);
-        updateNavState(navExample, !isScale);
+        // Update Desktop Nav (No config button on desktop)
+        updateNavState(navScale, isScale); // If config, neither is active visually, or maybe keep Scale active?
+        updateNavState(navExample, isExample);
 
-        // Update Mobile
+        // If config is selected on mobile, desktop nav might look empty. 
+        // But users can't select config on desktop.
+        // If they resize, we handle it below.
+
+        // Update Mobile Nav
         updateNavState(mobNavScale, isScale);
-        updateNavState(mobNavExample, !isScale);
+        updateNavState(mobNavExample, isExample);
+        updateNavState(mobNavConfig, isConfig);
 
         // Close mobile menu if open
         if (mobileMenu) mobileMenu.classList.add('hidden');
@@ -911,6 +934,14 @@ function initNavigation() {
     if (navExample) navExample.addEventListener('click', () => switchTab('example'));
     if (mobNavScale) mobNavScale.addEventListener('click', () => switchTab('scale'));
     if (mobNavExample) mobNavExample.addEventListener('click', () => switchTab('example'));
+    if (mobNavConfig) mobNavConfig.addEventListener('click', () => switchTab('config'));
+
+    // Desktop/Mobile Reconcilliation
+    window.addEventListener('resize', () => {
+        if (window.innerWidth >= 768 && currentView === 'config') {
+            switchTab('scale'); // Reset to scale view on desktop
+        }
+    });
 }
 
 // --- HIGHCHARTS STOCK ---
