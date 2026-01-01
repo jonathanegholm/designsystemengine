@@ -53,7 +53,7 @@ const SURFACES = [
 const STORAGE_KEY = 'design-system-presets';
 
 // --- STATE ---
-let state = { hue: 250, chroma: 0.14, baseColor: null, surfaceLevel: 'flat', borderRadius: 'default', buttonStyle: 'flat', shadows: 'default', fontFamily: 'Inter, sans-serif', positivePreset: 'Emerald', negativePreset: 'Red' };
+let state = { hue: 250, chroma: 0.14, baseColor: null, surfaceLevel: 'flat', borderRadius: 'default', buttonStyle: 'flat', shadows: 'default', fontFamily: 'Inter, sans-serif', positivePreset: 'Emerald', negativePreset: 'Red', warningPreset: 'Amber', dangerPreset: 'Red' };
 let currentSurface = SURFACES[0];
 let currentScaleValues = {};
 let userPresets = {};
@@ -173,6 +173,8 @@ const dom = {
     // Semantic
     positiveSelect: document.getElementById('positive-preset-select'),
     negativeSelect: document.getElementById('negative-preset-select'),
+    warningSelect: document.getElementById('warning-preset-select'),
+    dangerSelect: document.getElementById('danger-preset-select'),
     // Contrast Checker
     btnContrast: document.getElementById('btn-contrast'),
     mobBtnContrast: document.getElementById('mob-btn-contrast'),
@@ -442,6 +444,8 @@ function updateUI() {
     // Semantic Colors
     const posP = PRESETS.find(p => p.name === state.positivePreset) || PRESETS.find(p => p.name === 'Emerald');
     const negP = PRESETS.find(p => p.name === state.negativePreset) || PRESETS.find(p => p.name === 'Red');
+    const warnP = PRESETS.find(p => p.name === state.warningPreset) || PRESETS.find(p => p.name === 'Amber');
+    const dangP = PRESETS.find(p => p.name === state.dangerPreset) || PRESETS.find(p => p.name === 'Red');
 
     const generateSemanticVars = (preset, prefix) => {
         STOPS.forEach(stop => {
@@ -455,10 +459,14 @@ function updateUI() {
 
     generateSemanticVars(posP, 'positive');
     generateSemanticVars(negP, 'negative');
+    generateSemanticVars(warnP, 'warning');
+    generateSemanticVars(dangP, 'danger');
 
     // Update Dropdown Values
     if (dom.positiveSelect.value !== state.positivePreset) dom.positiveSelect.value = state.positivePreset;
     if (dom.negativeSelect.value !== state.negativePreset) dom.negativeSelect.value = state.negativePreset;
+    if (dom.warningSelect.value !== state.warningPreset) dom.warningSelect.value = state.warningPreset;
+    if (dom.dangerSelect.value !== state.dangerPreset) dom.dangerSelect.value = state.dangerPreset;
 
     dom.hueVal.innerText = state.hue.toFixed(0);
     dom.chromaVal.innerText = state.chroma.toFixed(3);
@@ -512,10 +520,16 @@ function updateSemanticClasses() {
     style.innerHTML = `
         .text-positive { color: var(--color-positive-600) !important; }
         .text-negative { color: var(--color-negative-600) !important; }
+        .text-warning { color: var(--color-warning-600) !important; }
+        .text-danger { color: var(--color-danger-600) !important; }
         .bg-positive-muted { background-color: var(--color-positive-500); opacity: 0.1; }
         .bg-positive-subtle { background-color: color-mix(in srgb, var(--color-positive-500) 10%, transparent); }
         .bg-negative-muted { background-color: var(--color-negative-500); opacity: 0.1; }
         .bg-negative-subtle { background-color: color-mix(in srgb, var(--color-negative-500) 10%, transparent); }
+        .bg-warning-muted { background-color: var(--color-warning-500); opacity: 0.1; }
+        .bg-warning-subtle { background-color: color-mix(in srgb, var(--color-warning-500) 10%, transparent); }
+        .bg-danger-muted { background-color: var(--color-danger-500); opacity: 0.1; }
+        .bg-danger-subtle { background-color: color-mix(in srgb, var(--color-danger-500) 10%, transparent); }
     `;
 
     // Attempt dynamic replacement of hardcoded classes if any exist in stock example
@@ -528,6 +542,26 @@ function updateSemanticClasses() {
     document.querySelectorAll('.bg-emerald-500\\/10').forEach(el => {
         el.classList.remove('bg-emerald-500/10');
         el.classList.add('bg-positive-subtle'); // Custom class
+    });
+
+    // Warning replacements
+    document.querySelectorAll('.text-amber-600, .text-amber-500').forEach(el => {
+        el.classList.remove('text-amber-600', 'text-amber-500');
+        el.classList.add('text-warning');
+    });
+    document.querySelectorAll('.bg-amber-500\\/10').forEach(el => {
+        el.classList.remove('bg-amber-500/10');
+        el.classList.add('bg-warning-subtle');
+    });
+
+    // Danger replacements
+    document.querySelectorAll('.text-red-600, .text-red-500, .text-destructive').forEach(el => {
+        el.classList.remove('text-red-600', 'text-red-500', 'text-destructive', 'dark:text-red-400');
+        el.classList.add('text-danger');
+    });
+    document.querySelectorAll('.bg-destructive\\/10, .bg-red-500\\/10').forEach(el => {
+        el.classList.remove('bg-destructive/10', 'bg-red-500/10');
+        el.classList.add('bg-danger-subtle');
     });
 }
 
@@ -900,6 +934,8 @@ function initSemanticSelects() {
     };
     populate(dom.positiveSelect);
     populate(dom.negativeSelect);
+    populate(dom.warningSelect);
+    populate(dom.dangerSelect);
 
     dom.positiveSelect.addEventListener('change', (e) => {
         state.positivePreset = e.target.value;
@@ -907,6 +943,14 @@ function initSemanticSelects() {
     });
     dom.negativeSelect.addEventListener('change', (e) => {
         state.negativePreset = e.target.value;
+        updateUI();
+    });
+    dom.warningSelect.addEventListener('change', (e) => {
+        state.warningPreset = e.target.value;
+        updateUI();
+    });
+    dom.dangerSelect.addEventListener('change', (e) => {
+        state.dangerPreset = e.target.value;
         updateUI();
     });
 }
