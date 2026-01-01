@@ -675,59 +675,104 @@
             </div>
 
             <!-- View: Example (Investment) -->
-            <div id="view-example" class="hidden space-y-6">
+            <div id="view-example" class="hidden space-y-6 !mt-0">
                 <!-- Header Info -->
-                <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6 pb-6">
-                    <div class="flex flex-col gap-2">
-                        <div class="flex items-center gap-4">
-                            <div class="w-16 h-16 rounded-full bg-white border shadow-sm shrink-0 overflow-hidden">
-                                <img src="https://cdn.brandfetch.io/apple.com" alt="Apple Inc."
-                                    class="w-full h-full object-cover" />
-                            </div>
-                            <div>
-                                <div class="flex items-center gap-2">
-                                    <h2 class="text-2xl font-bold tracking-tight">Apple Inc.</h2>
-                                    <span
-                                        class="text-xs font-mono bg-muted text-muted-foreground px-1.5 py-0.5 rounded">NASDAQ:
-                                        AAPL</span>
-                                </div>
-                                <p class="text-sm text-muted-foreground mt-1">Consumer Electronics • Cupertino, CA</p>
-                            </div>
+                <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-8 pb-8">
+                    <div class="flex flex-col gap-6">
+                        <!-- Logo -->
+                        <div
+                            class="w-16 h-16 rounded-full bg-white border shadow-sm shrink-0 overflow-hidden ring-4 ring-muted/20">
+                            <img src="https://cdn.brandfetch.io/apple.com" alt="Apple Inc."
+                                class="w-full h-full object-cover" />
                         </div>
-                        <div class="flex items-center gap-6 ml-20 mt-2 flex-wrap">
+
+                        <div class="flex flex-col gap-4">
                             <div>
-                                <span class="text-xs uppercase text-muted-foreground font-semibold">Market
-                                    Cap</span>
-                                <div class="font-mono text-sm font-medium">2.98T</div>
+                                <div class="flex items-center gap-3">
+                                    <h2 class="text-3xl font-bold tracking-tight">Apple Inc.</h2>
+                                    <span
+                                        class="inline-flex items-center rounded-md border border-transparent bg-muted px-2 py-0.5 text-xs font-mono font-semibold text-muted-foreground uppercase tracking-tight transition-colors">AAPL</span>
+                                </div>
                             </div>
-                            <div>
-                                <span class="text-xs uppercase text-muted-foreground font-semibold">P/E
-                                    Ratio</span>
-                                <div class="font-mono text-sm font-medium">31.45</div>
+
+                            <!-- Description and Stats row -->
+                            <div class="flex flex-wrap items-center gap-x-8 gap-y-4">
+                                <div>
+                                    <span
+                                        class="text-[10px] uppercase text-muted-foreground font-bold tracking-widest block mb-1">Company
+                                        Info</span>
+                                    <p class="text-sm font-medium">Consumer Electronics • Cupertino, CA</p>
+                                </div>
+                                <div class="h-8 w-px bg-border hidden sm:block"></div>
+                                <div>
+                                    <span
+                                        class="text-[10px] uppercase text-muted-foreground font-bold tracking-widest block mb-1">Market
+                                        Cap</span>
+                                    <div class="font-mono text-sm font-medium">2.98T</div>
+                                </div>
+                                <div>
+                                    <span
+                                        class="text-[10px] uppercase text-muted-foreground font-bold tracking-widest block mb-1">P/E
+                                        Ratio</span>
+                                    <div class="font-mono text-sm font-medium">31.45</div>
+                                </div>
+                                <div>
+                                    <span
+                                        class="text-[10px] uppercase text-muted-foreground font-bold tracking-widest block mb-1">Div
+                                        Yield</span>
+                                    <div class="font-mono text-sm font-medium">0.54%</div>
+                                </div>
+                                <div>
+                                    <span
+                                        class="text-[10px] uppercase text-muted-foreground font-bold tracking-widest block mb-1">Status</span>
+                                    <div
+                                        class="font-mono text-sm font-medium text-emerald-600 flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 w-fit">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                        Market Open
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <span class="text-xs uppercase text-muted-foreground font-semibold">Div
-                                    Yield</span>
-                                <div class="font-mono text-sm font-medium">0.54%</div>
-                            </div>
-                            <div>
-                                <span class="text-xs uppercase text-muted-foreground font-semibold">Status</span>
-                                <div class="font-mono text-sm font-medium text-emerald-600">Market Open</div>
+
+                            <!-- Price Section -->
+                            <div class="flex items-baseline gap-4 pt-2">
+                                <div class="text-4xl font-bold tracking-tighter mono">192.45 <span
+                                        class="text-lg font-medium text-muted-foreground">USD</span></div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-xl font-bold text-emerald-600 dark:text-emerald-400">+2.38</span>
+                                    <div
+                                        class="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-1 rounded-md text-sm font-bold flex items-center gap-1.5 border border-emerald-500/20">
+                                        <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
+                                        +1.24%
+                                    </div>
+                                    <span class="text-sm text-muted-foreground font-medium">Today</span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="flex flex-col items-start md:items-end">
-
-
-                        <div class="text-2xl font-bold tracking-tight mono">192.45 USD</div>
-                        <div class="flex items-center gap-2 mt-1">
-                            <div
-                                class="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-1 rounded text-sm font-bold flex items-center gap-1">
-                                +1.24%
-                            </div>
-                            <span class="text-sm text-muted-foreground">Today</span>
+                    <!-- Top Right Actions -->
+                    <div class="flex items-center gap-2 pt-2">
+                        <!-- Market Select -->
+                        <div
+                            class="flex items-center gap-2.5 px-3 h-9 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-all cursor-pointer shadow-sm group">
+                            <img src="https://flagcdn.com/w20/us.png" alt="US Flag"
+                                class="w-4 h-auto rounded-sm grayscale group-hover:grayscale-0 transition-all" />
+                            <span class="text-sm font-medium">Nasdaq</span>
+                            <i data-lucide="chevron-down"
+                                class="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors"></i>
                         </div>
+
+                        <!-- Info Button -->
+                        <button
+                            class="inline-flex items-center justify-center rounded-md text-sm font-medium border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 w-9 transition-colors">
+                            <i data-lucide="info" class="h-4 w-4"></i>
+                        </button>
+
+                        <!-- Primary Trade Button -->
+                        <button
+                            class="inline-flex items-center justify-center rounded-md text-sm font-medium bg-[var(--color-600)] text-white shadow hover:bg-[var(--color-700)] h-9 px-6 transition-all active:scale-95">
+                            Trade
+                        </button>
                     </div>
                 </div>
 
