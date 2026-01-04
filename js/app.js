@@ -1234,10 +1234,7 @@ function initNavigation() {
     const mobNavConfig = document.getElementById('mob-nav-config');
     const viewScale = document.getElementById('view-scale');
     const viewExample = document.getElementById('view-example');
-    const viewLanding = document.getElementById('view-landing');
 
-    const navLanding = document.getElementById('nav-landing');
-    const mobNavLanding = document.getElementById('mob-nav-landing');
     const appAside = document.getElementById('app-aside');
     const mobileMenu = document.getElementById('mobile-menu');
 
@@ -1260,7 +1257,6 @@ function initNavigation() {
         const isScale = view === 'scale';
         const isConfig = view === 'config';
         const isExample = view === 'example';
-        const isLanding = view === 'landing';
 
         // Visibility Logic
         if (isConfig) {
@@ -1268,19 +1264,16 @@ function initNavigation() {
             if (appAside) appAside.classList.remove('hidden');
             if (viewScale) viewScale.classList.add('hidden');
             if (viewExample) viewExample.classList.add('hidden');
-            if (viewLanding) viewLanding.classList.add('hidden');
         } else if (isScale) {
             // Scale Mode
             if (appAside) appAside.classList.add('hidden'); // Hide aside on mobile
             if (viewScale) viewScale.classList.remove('hidden');
             if (viewExample) viewExample.classList.add('hidden');
-            if (viewLanding) viewLanding.classList.add('hidden');
         } else if (isExample) {
             // Example Mode
             if (appAside) appAside.classList.add('hidden'); // Hide aside on mobile
             if (viewScale) viewScale.classList.add('hidden');
             if (viewExample) viewExample.classList.remove('hidden');
-            if (viewLanding) viewLanding.classList.add('hidden');
 
             // Critical Fix: Remove any inline styles that might hide content
             viewExample.style.removeProperty('height');
@@ -1291,18 +1284,11 @@ function initNavigation() {
             if (window.stockChart) {
                 setTimeout(() => window.stockChart.reflow(), 10);
             }
-        } else if (isLanding) {
-            // Landing Mode
-            if (appAside) appAside.classList.add('hidden');
-            if (viewScale) viewScale.classList.add('hidden');
-            if (viewExample) viewExample.classList.add('hidden');
-            if (viewLanding) viewLanding.classList.remove('hidden');
         }
 
         // Update Desktop Nav (No config button on desktop)
         updateNavState(navScale, isScale); // If config, neither is active visually, or maybe keep Scale active?
         updateNavState(navExample, isExample);
-        updateNavState(navLanding, isLanding);
 
         // If config is selected on mobile, desktop nav might look empty. 
         // But users can't select config on desktop.
@@ -1311,7 +1297,6 @@ function initNavigation() {
         // Update Mobile Nav
         updateNavState(mobNavScale, isScale);
         updateNavState(mobNavExample, isExample);
-        updateNavState(mobNavLanding, isLanding);
         updateNavState(mobNavConfig, isConfig);
 
         // Close mobile menu if open
@@ -1322,8 +1307,6 @@ function initNavigation() {
     if (navExample) navExample.addEventListener('click', () => switchTab('example'));
     if (mobNavScale) mobNavScale.addEventListener('click', () => switchTab('scale'));
     if (mobNavExample) mobNavExample.addEventListener('click', () => switchTab('example'));
-    if (mobNavLanding) mobNavLanding.addEventListener('click', () => switchTab('landing'));
-    if (navLanding) navLanding.addEventListener('click', () => switchTab('landing'));
     if (mobNavConfig) mobNavConfig.addEventListener('click', () => switchTab('config'));
 
     // Desktop/Mobile Reconcilliation
